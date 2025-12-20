@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Barang - Aplikasi Pembelian{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">
+                    <i class="bi bi-pencil"></i> Edit Barang
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('barang.edit', id=barang.id) }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.kode.label(class="form-label") }}
+                        {{ form.kode(class="form-control" + (" is-invalid" if form.kode.errors else "")) }}
+                        {% if form.kode.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.kode.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Kode barang harus unik</small>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.nama.label(class="form-label") }}
+                        {{ form.nama(class="form-control" + (" is-invalid" if form.nama.errors else "")) }}
+                        {% if form.nama.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.nama.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.satuan.label(class="form-label") }}
+                        {{ form.satuan(class="form-control" + (" is-invalid" if form.satuan.errors else "")) }}
+                        {% if form.satuan.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.satuan.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Contoh: pcs, kg, liter, box, dll</small>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.harga_beli.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            {{ form.harga_beli(class="form-control" + (" is-invalid" if form.harga_beli.errors else "")) }}
+                            {% if form.harga_beli.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.harga_beli.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <small class="form-text text-muted">Harga beli standar untuk barang ini</small>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('barang.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Batal
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-save"></i> Update
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

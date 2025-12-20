@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar Barang - Aplikasi Pembelian{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-box-seam"></i> Daftar Barang</h2>
+            <a href="{{ url_for('barang.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Tambah Barang
+            </a>
+        </div>
+
+        <!-- Search Form -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('barang.index') }}" class="row g-3">
+                    <div class="col-md-10">
+                        <input type="text" 
+                               class="form-control" 
+                               name="search" 
+                               placeholder="Cari barang (kode atau nama)..." 
+                               value="{{ search }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-search"></i> Cari
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Barang Table -->
+        <div class="card">
+            <div class="card-body">
+                {% if barangs.items %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Kode</th>
+                                <th>Nama Barang</th>
+                                <th>Satuan</th>
+                                <th>Harga Beli</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for barang in barangs.items %}
+                            <tr>
+                                <td>{{ (barangs.page - 1) * barangs.per_page + loop.index }}</td>
+                                <td><strong>{{ barang.kode }}</strong></td>
+                                <td>{{ barang.nama }}</td>
+                                <td>{{ barang.satuan }}</td>
+                                <td>Rp {{ "{:,.2f}".format(float(barang.harga_beli)) }}</td>
+                                <td>
+                                    <a href="{{ url_for('barang.edit', id=barang.id) }}" 
+                                       class="btn btn-sm btn-warning" 
+                                       title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form method="POST" 
+                                          action="{{ url_for('barang.delete', id=barang.id) }}" 
+                                          class="d-inline"
+                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus barang ini?');">
+                                        <button type="submit" 
+                                                class="btn btn-sm btn-danger" 
+                                                title="Hapus">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if barangs.pages > 1 %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if barangs.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('barang.index', page=barangs.prev_num, search=search) }}">
+                                <i class="bi bi-chevron-left"></i> Sebelumnya
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="bi bi-chevron-left"></i> Sebelumnya</span>
+                        </li>
+                        {% endif %}
+
+                        {% for page_num in barangs.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if page_num %}
+                                {% if page_num == barangs.page %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('barang.index', page=page_num, search=search) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if barangs.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('barang.index', page=barangs.next_num, search=search) }}">
+                                Selanjutnya <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Selanjutnya <i class="bi bi-chevron-right"></i></span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+                <div class="text-muted text-center mt-3">
+                    Menampilkan {{ barangs.items|length }} dari {{ barangs.total }} barang
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle"></i> Tidak ada data barang.
+                    <a href="{{ url_for('barang.create') }}" class="alert-link">Tambah barang baru</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
