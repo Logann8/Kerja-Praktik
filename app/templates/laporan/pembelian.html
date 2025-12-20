@@ -19,6 +19,36 @@
     </form>
     
     <p>Periode: {% if tanggal_awal and tanggal_akhir %}{{ tanggal_awal }} s/d {{ tanggal_akhir }}{% else %}-{% endif %}</p>
+    
+    {% if pembelians %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Tanggal Pembelian</th>
+                <th>Total Pembelian</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pembelian in pembelians %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ pembelian.tanggal }}</td>
+                <td>{{ pembelian.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2"><strong>Grand Total</strong></td>
+                <td><strong>{{ grand_total }}</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+    {% else %}
+    <p>Data pembelian tidak ditemukan</p>
+    {% endif %}
+    
     <p>Halaman laporan berhasil dimuat</p>
 </body>
 </html>
