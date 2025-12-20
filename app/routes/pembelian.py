@@ -164,3 +164,49 @@ def get_barang(barang_id):
         'satuan': barang.satuan,
         'harga_beli': float(barang.harga_beli) if barang.harga_beli else 0.0
     })
+
+
+@bp.route('/laporan')
+def laporan():
+    """Halaman laporan pembelian dengan filter tanggal"""
+    from datetime import datetime
+    
+    # Ambil parameter filter
+    tanggal_mulai = request.args.get('tanggal_mulai', '')
+    tanggal_akhir = request.args.get('tanggal_akhir', '')
+    
+    # Query dasar
+    query = Pembelian.query
+    
+    # Filter berdasarkan tanggal
+    if tanggal_mulai:
+        try:
+            tanggal_mulai_obj = datetime.strptime(tanggal_mulai, '%Y-%m-%d').date()
+            query = query.filter(Pembelian.tanggal >= tanggal_mulai_obj)
+        except ValueError:
+            flash('Format tanggal mulai tidak valid!', 'danger')
+            tanggal_mulai = ''
+    
+    if tanggal_akhir:
+        try:
+            tanggal_akhir_obj = datetime.strptime(tanggal_akhir, '%Y-%m-%d').date()
+            query = query.filter(Pembelian.tanggal <= tanggal_akhir_obj)
+        except ValueError:
+            flash('Format tanggal akhir tidak valid!', 'danger')
+            tanggal_akhir = ''
+    
+    # Jika tidak ada filter, tampilkan semua data
+    pembelians = query.order_by(Pembelian.tanggal.desc(), Pembelian.created_at.desc()).all()
+    
+    # Hitung total
+    total_keseluruhan = sum(float(p.total) for p in pembelians)
+    jumlah_transaksi = len(pembelians)
+    
+    return render_template(
+        'pembelian/laporan.html',
+        pembelians=pembelians,
+        tanggal_mulai=tanggal_mulai,
+        tanggal_akhir=tanggal_akhir,
+        total_keseluruhan=total_keseluruhan,
+        jumlah_transaksi=jumlah_transaksi
+    )

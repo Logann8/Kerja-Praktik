@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Laporan Pembelian - Aplikasi Pembelian{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-file-earmark-text"></i> Laporan Pembelian</h2>
+            <a href="{{ url_for('pembelian.index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Kembali
+            </a>
+        </div>
+
+        <!-- Filter Form -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-funnel"></i> Filter Laporan</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('pembelian.laporan') }}" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="tanggal_mulai" class="form-label">Tanggal Mulai</label>
+                        <input type="date" 
+                               class="form-control" 
+                               id="tanggal_mulai" 
+                               name="tanggal_mulai" 
+                               value="{{ tanggal_mulai }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="tanggal_akhir" class="form-label">Tanggal Akhir</label>
+                        <input type="date" 
+                               class="form-control" 
+                               id="tanggal_akhir" 
+                               name="tanggal_akhir" 
+                               value="{{ tanggal_akhir }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                {% if tanggal_mulai or tanggal_akhir %}
+                <div class="mt-3">
+                    <a href="{{ url_for('pembelian.laporan') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-x-circle"></i> Reset Filter
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Summary Card -->
+        {% if pembelians %}
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-receipt"></i> Jumlah Transaksi</h5>
+                        <h2 class="mb-0">{{ jumlah_transaksi }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-cash-stack"></i> Total Pembelian</h5>
+                        <h2 class="mb-0">Rp {{ "{:,.2f}".format(total_keseluruhan) }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tabel Laporan -->
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-table"></i> Daftar Pembelian</h5>
+            </div>
+            <div class="card-body">
+                {% if pembelians %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>No. Faktur</th>
+                                <th>Tanggal</th>
+                                <th>Vendor</th>
+                                <th class="text-end">Total</th>
+                                <th>Keterangan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pembelian in pembelians %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><strong>{{ pembelian.no_faktur }}</strong></td>
+                                <td>{{ pembelian.tanggal.strftime('%d/%m/%Y') if pembelian.tanggal else '-' }}</td>
+                                <td>
+                                    {% if pembelian.vendor %}
+                                        <strong>{{ pembelian.vendor.kode }}</strong> - {{ pembelian.vendor.nama }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td class="text-end"><strong>Rp {{ "{:,.2f}".format(float(pembelian.total)) }}</strong></td>
+                                <td>{{ pembelian.keterangan or '-' }}</td>
+                                <td>
+                                    <a href="{{ url_for('pembelian.detail', id=pembelian.id) }}" 
+                                       class="btn btn-sm btn-info" 
+                                       title="Detail">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-info">
+                            <tr>
+                                <td colspan="4" class="text-end fw-bold">TOTAL KESELURUHAN:</td>
+                                <td class="text-end fw-bold">Rp {{ "{:,.2f}".format(total_keseluruhan) }}</td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <div class="mt-3 text-muted">
+                    <small>
+                        <i class="bi bi-info-circle"></i> 
+                        Menampilkan {{ pembelians|length }} transaksi pembelian
+                        {% if tanggal_mulai or tanggal_akhir %}
+                            {% if tanggal_mulai and tanggal_akhir %}
+                                dari tanggal {{ tanggal_mulai }} sampai {{ tanggal_akhir }}
+                            {% elif tanggal_mulai %}
+                                dari tanggal {{ tanggal_mulai }}
+                            {% elif tanggal_akhir %}
+                                sampai tanggal {{ tanggal_akhir }}
+                            {% endif %}
+                        {% else %}
+                            (semua data)
+                        {% endif %}
+                    </small>
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle"></i> 
+                    {% if tanggal_mulai or tanggal_akhir %}
+                        Tidak ada data pembelian untuk periode yang dipilih.
+                    {% else %}
+                        Belum ada data pembelian.
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Set default tanggal (bulan ini) jika belum ada filter
+document.addEventListener('DOMContentLoaded', function() {
+    const tanggalMulai = document.getElementById('tanggal_mulai');
+    const tanggalAkhir = document.getElementById('tanggal_akhir');
+    
+    // Jika kedua field kosong, set default ke bulan ini
+    if (!tanggalMulai.value && !tanggalAkhir.value) {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        
+        tanggalMulai.value = firstDay.toISOString().split('T')[0];
+        tanggalAkhir.value = lastDay.toISOString().split('T')[0];
+    }
+});
+</script>
+{% endblock %}
+
