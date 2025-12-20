@@ -30,6 +30,12 @@ def create_app(config_name='default'):
     app.register_blueprint(pembelian.bp, url_prefix='/pembelian')
     app.register_blueprint(vendor.bp, url_prefix='/vendor')
     
+    # Root route
+    @app.route('/')
+    def index():
+        from flask import redirect, url_for
+        return redirect(url_for('vendor.index'))
+    
     # Create database tables
     with app.app_context():
         db.create_all()

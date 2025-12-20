@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar Vendor - Aplikasi Pembelian{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-people"></i> Daftar Vendor</h2>
+            <a href="{{ url_for('vendor.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Tambah Vendor
+            </a>
+        </div>
+
+        <!-- Search Form -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('vendor.index') }}" class="row g-3">
+                    <div class="col-md-10">
+                        <input type="text" 
+                               class="form-control" 
+                               name="search" 
+                               placeholder="Cari vendor (kode atau nama)..." 
+                               value="{{ search }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-search"></i> Cari
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Vendor Table -->
+        <div class="card">
+            <div class="card-body">
+                {% if vendors.items %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Kode</th>
+                                <th>Nama</th>
+                                <th>Alamat</th>
+                                <th>Telepon</th>
+                                <th>Email</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vendor in vendors.items %}
+                            <tr>
+                                <td>{{ (vendors.page - 1) * vendors.per_page + loop.index }}</td>
+                                <td><strong>{{ vendor.kode }}</strong></td>
+                                <td>{{ vendor.nama }}</td>
+                                <td>{{ vendor.alamat or '-' }}</td>
+                                <td>{{ vendor.telepon or '-' }}</td>
+                                <td>{{ vendor.email or '-' }}</td>
+                                <td>
+                                    <a href="{{ url_for('vendor.edit', id=vendor.id) }}" 
+                                       class="btn btn-sm btn-warning" 
+                                       title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form method="POST" 
+                                          action="{{ url_for('vendor.delete', id=vendor.id) }}" 
+                                          class="d-inline"
+                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus vendor ini?');">
+                                        <button type="submit" 
+                                                class="btn btn-sm btn-danger" 
+                                                title="Hapus">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if vendors.pages > 1 %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if vendors.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('vendor.index', page=vendors.prev_num, search=search) }}">
+                                <i class="bi bi-chevron-left"></i> Sebelumnya
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="bi bi-chevron-left"></i> Sebelumnya</span>
+                        </li>
+                        {% endif %}
+
+                        {% for page_num in vendors.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if page_num %}
+                                {% if page_num == vendors.page %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('vendor.index', page=page_num, search=search) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if vendors.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('vendor.index', page=vendors.next_num, search=search) }}">
+                                Selanjutnya <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Selanjutnya <i class="bi bi-chevron-right"></i></span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+                <div class="text-muted text-center mt-3">
+                    Menampilkan {{ vendors.items|length }} dari {{ vendors.total }} vendor
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle"></i> Tidak ada data vendor.
+                    <a href="{{ url_for('vendor.create') }}" class="alert-link">Tambah vendor baru</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
