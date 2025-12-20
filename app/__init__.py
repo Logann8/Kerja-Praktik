@@ -25,11 +25,12 @@ def create_app(config_name='default'):
     db.init_app(app)
     
     # Register blueprints
-    from app.routes import pembelian, vendor, barang
+    from app.routes import pembelian, vendor, barang, laporan
     
     app.register_blueprint(pembelian.bp, url_prefix='/pembelian')
     app.register_blueprint(vendor.bp, url_prefix='/vendor')
     app.register_blueprint(barang.bp, url_prefix='/barang')
+    app.register_blueprint(laporan.bp)
     
     # Root route
     @app.route('/')
