@@ -7,7 +7,18 @@
 </head>
 <body>
     <h1>Laporan Pembelian Barang</h1>
-    <p>Periode: {{ tanggal_awal }} s/d {{ tanggal_akhir }}</p>
+    
+    <form method="GET" action="/laporan/pembelian">
+        <label>Tanggal Awal:</label>
+        <input type="date" name="tanggal_awal" value="{{ tanggal_awal or '' }}">
+        
+        <label>Tanggal Akhir:</label>
+        <input type="date" name="tanggal_akhir" value="{{ tanggal_akhir or '' }}">
+        
+        <button type="submit">Tampilkan</button>
+    </form>
+    
+    <p>Periode: {% if tanggal_awal and tanggal_akhir %}{{ tanggal_awal }} s/d {{ tanggal_akhir }}{% else %}-{% endif %}</p>
     <p>Halaman laporan berhasil dimuat</p>
 </body>
 </html>
