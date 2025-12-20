@@ -43,3 +43,4 @@ class BarangForm(FlaskForm):
     )
 
 
+

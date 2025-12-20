@@ -121,3 +121,4 @@ def delete(id):
     return redirect(url_for('barang.index'))
 
 
+
