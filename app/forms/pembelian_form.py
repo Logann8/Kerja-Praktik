@@ -35,3 +35,4 @@ class PembelianForm(FlaskForm):
         render_kw={'class': 'form-control', 'placeholder': 'Keterangan tambahan (opsional)', 'rows': 3}
     )
 
+
