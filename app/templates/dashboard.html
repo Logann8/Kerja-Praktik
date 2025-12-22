@@ -18,7 +18,7 @@
     <!-- Cards Row -->
     <div class="row g-4 mb-4">
         <!-- Total Pembelian -->
-        <div class="col-12 col-sm-6 col-xl-3" style="--i: 1">
+        <div class="col-12 col-md-6 col-xl-4" style="--i: 1">
             <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.3s ease, box-shadow 0.3s ease;">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -40,7 +40,7 @@
         </div>
 
         <!-- Jumlah Vendor -->
-        <div class="col-12 col-sm-6 col-xl-3" style="--i: 2">
+        <div class="col-12 col-md-6 col-xl-4" style="--i: 2">
             <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.3s ease, box-shadow 0.3s ease;">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -61,30 +61,8 @@
             </div>
         </div>
 
-        <!-- Transaksi Hari Ini -->
-        <div class="col-12 col-sm-6 col-xl-3" style="--i: 3">
-            <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.3s ease, box-shadow 0.3s ease;">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="bg-warning bg-opacity-10 p-3 rounded-3">
-                            <i class="bi bi-receipt text-warning" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div class="text-end">
-                            <span class="text-muted small">Transaksi Hari Ini</span>
-                            <h3 class="mb-0">8</h3>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center justify-content-between">
-                        <span class="text-success small">
-                            <i class="bi bi-arrow-up"></i> 2 dari kemarin
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Total Barang -->
-        <div class="col-12 col-sm-6 col-xl-3" style="--i: 4">
+        <div class="col-12 col-md-6 col-xl-4" style="--i: 3">
             <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.3s ease, box-shadow 0.3s ease;">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -106,8 +84,21 @@
         </div>
     </div>
 
+    <div class="row mb-4" style="--i: 5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0">Total Pembelian per Bulan</h5>
+                </div>
+                <div class="card-body" style="height: 360px;">
+                    <canvas id="pembelianPerBulanChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Recent Transactions -->
-    <div class="row mt-4" style="--i: 5">
+    <div class="row mt-4" style="--i: 6">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-0 py-3">
@@ -155,4 +146,81 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    (function () {
+        const el = document.getElementById('pembelianPerBulanChart');
+        if (!el) return;
+
+        const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        const data = [12500000, 9800000, 14250000, 11000000, 15800000, 13300000, 16500000, 14900000, 17200000, 16100000, 18500000, 19500000];
+
+        new Chart(el, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Total Pembelian (Rp)',
+                    data,
+                    backgroundColor: 'rgba(59, 130, 246, 0.35)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    maxBarThickness: 48
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 900,
+                    easing: 'easeOutQuart',
+                    onComplete: function (ctx) {
+                        const chart = ctx.chart;
+                        if (chart && chart.options && chart.options.animation) {
+                            chart.options.animation = false;
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            boxWidth: 12
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const v = ctx.raw || 0;
+                                return ' Rp ' + Number(v).toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return 'Rp ' + Number(value).toLocaleString('id-ID');
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(15, 23, 42, 0.08)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    })();
+</script>
 {% endblock %}
