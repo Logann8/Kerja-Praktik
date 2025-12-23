@@ -1,0 +1,50 @@
+<div class="modal-body">
+    <h5 class="mb-3">Detail Order</h5>
+    
+    {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Deskripsi Barang</th>
+                        <th>Jumlah</th>
+                        <th>Harga</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.tanggal_order.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ order.deskripsi }}</td>
+                        <td>{{ order.jumlah }}</td>
+                        <td>Rp {{ "%.2f"|format(order.harga_satuan) }}</td>
+                        <td>Rp {{ "%.2f"|format(order.jumlah * order.harga_satuan) }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if order.status == 'Selesai' %}bg-success
+                                {% elif order.status == 'Proses' %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="table-primary fw-bold">
+                        <td colspan="4">Total Keseluruhan:</td>
+                        <td>Rp {{ "%.2f"|format(total_keseluruhan) }}</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-4">
+            <p class="text-muted mb-0">Belum ada order untuk konsumen ini.</p>
+        </div>
+    {% endif %}
+</div>

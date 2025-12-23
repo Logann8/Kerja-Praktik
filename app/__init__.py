@@ -25,9 +25,10 @@ def create_app(config_name='default'):
     db.init_app(app)
     
     # Register blueprints
-    from app.routes import laporan, dashboard, konsumen
+    from app.routes import laporan, dashboard, konsumen, order
     
     app.register_blueprint(konsumen.bp, url_prefix='/konsumen')
+    app.register_blueprint(order.bp, url_prefix='/order')
     app.register_blueprint(laporan.bp)
     app.register_blueprint(dashboard.dashboard_bp)
     

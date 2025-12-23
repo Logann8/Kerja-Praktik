@@ -3,6 +3,7 @@ from sqlalchemy import func, or_
 
 from app import db
 from app.forms.konsumen_form import KonsumenForm
+from app.forms.order_form import OrderForm
 from app.models import Konsumen
 
 bp = Blueprint('konsumen', __name__)
@@ -14,6 +15,7 @@ def index():
     per_page = 10
 
     form = KonsumenForm()
+    order_form = OrderForm()
 
     search = request.args.get('search', '')
     query = Konsumen.query
@@ -34,7 +36,7 @@ def index():
         error_out=False,
     )
 
-    return render_template('konsumen/index.html', konsumen=konsumen, search=search, form=form)
+    return render_template('konsumen/index.html', konsumen=konsumen, search=search, form=form, order_form=order_form)
 
 
 @bp.route('/create', methods=['GET', 'POST'])

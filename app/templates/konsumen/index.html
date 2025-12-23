@@ -60,6 +60,63 @@
             </div>
         </div>
 
+        <div class="modal fade" id="tambahOrderModal" tabindex="-1" aria-labelledby="tambahOrderModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <form method="POST" action="{{ url_for('order.create') }}">
+                        {{ order_form.hidden_tag() }}
+
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="tambahOrderModalLabel">
+                                <i class="bi bi-bag-plus me-2"></i>Tambah Order
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="mb-3 text-muted">
+                                Konsumen: <strong id="tambahOrderNamaKonsumen"></strong>
+                            </div>
+
+                            {{ order_form.konsumen_id(id='order_konsumen_id') }}
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    {{ order_form.tanggal_order.label(class='form-label') }}
+                                    {{ order_form.tanggal_order(id='order_tanggal_order') }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ order_form.status.label(class='form-label') }}
+                                    {{ order_form.status(id='order_status') }}
+                                </div>
+
+                                <div class="col-12">
+                                    {{ order_form.deskripsi.label(class='form-label') }}
+                                    {{ order_form.deskripsi(id='order_deskripsi') }}
+                                </div>
+
+                                <div class="col-md-6">
+                                    {{ order_form.jumlah.label(class='form-label') }}
+                                    {{ order_form.jumlah(id='order_jumlah') }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ order_form.harga_satuan.label(class='form-label') }}
+                                    {{ order_form.harga_satuan(id='order_harga_satuan') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>Simpan Order
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <div class="modal fade" id="hapusKonsumenModal" tabindex="-1" aria-labelledby="hapusKonsumenModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -132,6 +189,26 @@
             </div>
         </div>
 
+        <div class="modal fade" id="detailOrderModal" tabindex="-1" aria-labelledby="detailOrderModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="detailOrderModalLabel">
+                            <i class="bi bi-eye me-2"></i>Detail Order - <span id="detailOrderNamaKonsumen"></span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div id="detailOrderModalBody">
+                        <div class="modal-body text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card mb-4">
             <div class="card-body">
                 <form method="GET" action="{{ url_for('konsumen.index') }}" class="row g-3">
@@ -175,6 +252,24 @@
                                 <td>{{ k.telepon or '-' }}</td>
                                 <td>{{ k.email or '-' }}</td>
                                 <td>
+                                    <button type="button"
+                                            class="btn btn-sm btn-primary"
+                                            title="Tambah Order"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#tambahOrderModal"
+                                            data-konsumen-id="{{ k.id }}"
+                                            data-konsumen-nama="{{ k.nama|e }}">
+                                        <i class="bi bi-bag-plus"></i>
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-sm btn-secondary"
+                                            title="Detail Order"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#detailOrderModal"
+                                            data-konsumen-id="{{ k.id }}"
+                                            data-konsumen-nama="{{ k.nama|e }}">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                     <button type="button"
                                             class="btn btn-sm btn-warning"
                                             title="Edit"
@@ -314,6 +409,67 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const namaEl = hapusModal.querySelector('#hapusKonsumenNama');
         if (namaEl) namaEl.textContent = nama;
+    });
+
+    const orderModal = document.getElementById('tambahOrderModal');
+    if (!orderModal) return;
+
+    orderModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        if (!button) return;
+
+        const konsumenId = button.getAttribute('data-konsumen-id') || '';
+        const konsumenNama = button.getAttribute('data-konsumen-nama') || '';
+
+        const namaEl = orderModal.querySelector('#tambahOrderNamaKonsumen');
+        if (namaEl) namaEl.textContent = konsumenNama;
+
+        const hiddenId = orderModal.querySelector('#order_konsumen_id');
+        if (hiddenId) hiddenId.value = konsumenId;
+
+        const statusSelect = orderModal.querySelector('#order_status');
+        if (statusSelect && !statusSelect.value) statusSelect.value = 'Pending';
+    });
+
+    const detailOrderModal = document.getElementById('detailOrderModal');
+    if (!detailOrderModal) return;
+
+    detailOrderModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        if (!button) return;
+
+        const konsumenId = button.getAttribute('data-konsumen-id') || '';
+        const konsumenNama = button.getAttribute('data-konsumen-nama') || '';
+
+        const namaEl = detailOrderModal.querySelector('#detailOrderNamaKonsumen');
+        if (namaEl) namaEl.textContent = konsumenNama;
+
+        const modalBody = detailOrderModal.querySelector('#detailOrderModalBody');
+        if (modalBody) {
+            modalBody.innerHTML = `
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `;
+
+            fetch(`/order/konsumen/${konsumenId}`)
+                .then(response => response.text())
+                .then(html => {
+                    modalBody.innerHTML = html;
+                })
+                .catch(error => {
+                    modalBody.innerHTML = `
+                        <div class="modal-body">
+                            <div class="alert alert-danger" role="alert">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Gagal memuat data order. Silakan coba lagi.
+                            </div>
+                        </div>
+                    `;
+                });
+        }
     });
 });
 </script>
