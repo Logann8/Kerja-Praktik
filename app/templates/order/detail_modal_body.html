@@ -12,6 +12,7 @@
                         <th>Harga</th>
                         <th>Total</th>
                         <th>Status</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,6 +31,17 @@
                                 {{ order.status }}
                             </span>
                         </td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary btn-ubah-status-order"
+                                    data-order-id="{{ order.id }}"
+                                    data-konsumen-id="{{ order.konsumen_id }}"
+                                    data-order-tanggal="{{ order.tanggal_order.strftime('%d/%m/%Y') }}"
+                                    data-order-total="{{ "%.2f"|format(order.jumlah * order.harga_satuan) }}"
+                                    data-order-status="{{ order.status|e }}">
+                                Ubah Status
+                            </button>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -37,6 +49,7 @@
                     <tr class="table-primary fw-bold">
                         <td colspan="4">Total Keseluruhan:</td>
                         <td>Rp {{ "%.2f"|format(total_keseluruhan) }}</td>
+                        <td></td>
                         <td></td>
                     </tr>
                 </tfoot>

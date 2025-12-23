@@ -190,7 +190,7 @@
         </div>
 
         <div class="modal fade" id="detailOrderModal" tabindex="-1" aria-labelledby="detailOrderModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="detailOrderModalLabel">
@@ -205,6 +205,54 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="ubahStatusOrderModal" tabindex="-1" aria-labelledby="ubahStatusOrderModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form id="ubahStatusOrderForm" method="POST" action="">
+                        {{ order_form.csrf_token }}
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="ubahStatusOrderModalLabel">
+                                <i class="bi bi-arrow-repeat me-2"></i>Ubah Status Order
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <input type="hidden" id="ubah_status_konsumen_id" name="konsumen_id" value="">
+
+                            <div class="mb-3">
+                                <div class="text-muted">Tanggal</div>
+                                <div class="fw-semibold" id="ubahStatusOrderTanggal">-</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="text-muted">Total</div>
+                                <div class="fw-semibold" id="ubahStatusOrderTotal">-</div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="ubah_status_order" class="form-label">Status</label>
+                                <select class="form-select" id="ubah_status_order" name="status" required>
+                                    <option value="" selected disabled>Pilih status...</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Proses">Proses</option>
+                                    <option value="Selesai">Selesai</option>
+                                </select>
+                                <div class="invalid-feedback">Status wajib dipilih.</div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary" id="btnSimpanUbahStatusOrder">
+                                <i class="bi bi-save me-1"></i>Simpan
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -262,7 +310,7 @@
                                         <i class="bi bi-bag-plus"></i>
                                     </button>
                                     <button type="button"
-                                            class="btn btn-sm btn-secondary"
+                                            class="btn btn-sm btn-outline-secondary"
                                             title="Detail Order"
                                             data-bs-toggle="modal"
                                             data-bs-target="#detailOrderModal"
@@ -434,6 +482,43 @@ document.addEventListener('DOMContentLoaded', function () {
     const detailOrderModal = document.getElementById('detailOrderModal');
     if (!detailOrderModal) return;
 
+    const ubahStatusOrderModal = document.getElementById('ubahStatusOrderModal');
+    const ubahStatusOrderForm = document.getElementById('ubahStatusOrderForm');
+    const ubahStatusSelect = document.getElementById('ubah_status_order');
+    const ubahStatusKonsumenId = document.getElementById('ubah_status_konsumen_id');
+    const ubahStatusTanggalEl = document.getElementById('ubahStatusOrderTanggal');
+    const ubahStatusTotalEl = document.getElementById('ubahStatusOrderTotal');
+    const btnSimpanUbahStatusOrder = document.getElementById('btnSimpanUbahStatusOrder');
+
+    const getDetailOrderModalBody = () => detailOrderModal.querySelector('#detailOrderModalBody');
+    const refreshDetailOrderModal = async (konsumenId) => {
+        const modalBody = getDetailOrderModalBody();
+        if (!modalBody) return;
+
+        modalBody.innerHTML = `
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        `;
+
+        try {
+            const response = await fetch(`/order/konsumen/${konsumenId}`);
+            const html = await response.text();
+            modalBody.innerHTML = html;
+        } catch (error) {
+            modalBody.innerHTML = `
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Gagal memuat data order. Silakan coba lagi.
+                    </div>
+                </div>
+            `;
+        }
+    };
+
     detailOrderModal.addEventListener('show.bs.modal', function (event) {
         const button = event.relatedTarget;
         if (!button) return;
@@ -471,6 +556,80 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         }
     });
+
+    detailOrderModal.addEventListener('click', function (event) {
+        const btn = event.target.closest('.btn-ubah-status-order');
+        if (!btn) return;
+
+        const orderId = btn.getAttribute('data-order-id') || '';
+        const konsumenId = btn.getAttribute('data-konsumen-id') || '';
+        const tanggal = btn.getAttribute('data-order-tanggal') || '-';
+        const total = btn.getAttribute('data-order-total') || '0.00';
+        const status = btn.getAttribute('data-order-status') || '';
+
+        if (!orderId || !konsumenId || !ubahStatusOrderModal || !ubahStatusOrderForm) return;
+
+        ubahStatusOrderForm.setAttribute('action', `/order/${orderId}/status`);
+        if (ubahStatusKonsumenId) ubahStatusKonsumenId.value = konsumenId;
+        if (ubahStatusTanggalEl) ubahStatusTanggalEl.textContent = tanggal;
+        if (ubahStatusTotalEl) ubahStatusTotalEl.textContent = `Rp ${total}`;
+
+        if (ubahStatusSelect) {
+            ubahStatusSelect.classList.remove('is-invalid');
+            ubahStatusSelect.value = status;
+        }
+
+        const modalInstance = bootstrap.Modal.getOrCreateInstance(ubahStatusOrderModal);
+        modalInstance.show();
+    });
+
+    if (ubahStatusOrderForm) {
+        ubahStatusOrderForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            if (!ubahStatusSelect || !ubahStatusSelect.value) {
+                if (ubahStatusSelect) ubahStatusSelect.classList.add('is-invalid');
+                return;
+            }
+
+            if (btnSimpanUbahStatusOrder) btnSimpanUbahStatusOrder.disabled = true;
+
+            try {
+                const response = await fetch(ubahStatusOrderForm.getAttribute('action') || '', {
+                    method: 'POST',
+                    body: new FormData(ubahStatusOrderForm),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Gagal menyimpan');
+                }
+
+                const html = await response.text();
+                const modalBody = getDetailOrderModalBody();
+                if (modalBody) modalBody.innerHTML = html;
+
+                const modalInstance = bootstrap.Modal.getOrCreateInstance(ubahStatusOrderModal);
+                modalInstance.hide();
+            } catch (error) {
+                const modalBody = getDetailOrderModalBody();
+                const konsumenId = ubahStatusKonsumenId ? ubahStatusKonsumenId.value : '';
+                if (konsumenId) {
+                    await refreshDetailOrderModal(konsumenId);
+                } else if (modalBody) {
+                    modalBody.innerHTML = `
+                        <div class="modal-body">
+                            <div class="alert alert-danger" role="alert">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Gagal menyimpan status order. Silakan coba lagi.
+                            </div>
+                        </div>
+                    `;
+                }
+            } finally {
+                if (btnSimpanUbahStatusOrder) btnSimpanUbahStatusOrder.disabled = false;
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

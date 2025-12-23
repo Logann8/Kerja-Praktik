@@ -7,7 +7,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 
-from app.models import Konsumen
+from app.models import Konsumen, Order
 
 bp = Blueprint('laporan', __name__, url_prefix='/laporan')
 
@@ -16,6 +16,49 @@ bp = Blueprint('laporan', __name__, url_prefix='/laporan')
 def konsumen():
     konsumen = Konsumen.query.order_by(Konsumen.created_at.desc()).all()
     return render_template('laporan/konsumen.html', konsumen=konsumen)
+
+
+@bp.route('/cetak', methods=['GET'])
+def cetak():
+    konsumen_list = Konsumen.query.order_by(Konsumen.created_at.desc()).all()
+    orders = Order.query.order_by(Order.tanggal_order.desc()).all()
+
+    orders_by_konsumen = {}
+    for o in orders:
+        orders_by_konsumen.setdefault(o.konsumen_id, []).append(o)
+
+    rows = []
+    no = 0
+    for k in konsumen_list:
+        konsumen_orders = orders_by_konsumen.get(k.id) or []
+
+        if not konsumen_orders:
+            no += 1
+            rows.append(
+                {
+                    'no': no,
+                    'konsumen': k,
+                    'order': None,
+                }
+            )
+            continue
+
+        for o in konsumen_orders:
+            no += 1
+            rows.append(
+                {
+                    'no': no,
+                    'konsumen': k,
+                    'order': o,
+                }
+            )
+
+    return render_template(
+        'laporan/cetak.html',
+        tanggal_cetak=datetime.now(),
+        rows=rows,
+        total_konsumen=len(konsumen_list),
+    )
 
 
 @bp.route('/konsumen/pdf', methods=['GET'])

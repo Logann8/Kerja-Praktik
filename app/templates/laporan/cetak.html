@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Cetak Laporan - Aplikasi Pendataan Konsumen{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
+        <div>
+            <h1 class="h2">Laporan Konsumen & Order</h1>
+            <div class="text-muted small">Tanggal cetak: {{ tanggal_cetak.strftime('%d/%m/%Y %H:%M') }}</div>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary" onclick="window.print()">
+                <i class="bi bi-printer"></i> Cetak
+            </button>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="--i: 2">
+        <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Tabel Laporan</h5>
+            <span class="text-muted small">Total: {{ total_konsumen }} konsumen</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 60px;">No</th>
+                            <th>Nama Konsumen</th>
+                            <th style="width: 170px;">No Telepon</th>
+                            <th style="width: 220px;">Email</th>
+                            <th style="width: 120px;">Tanggal Order</th>
+                            <th>Deskripsi Barang</th>
+                            <th style="width: 80px;">Jumlah</th>
+                            <th style="width: 120px;">Harga</th>
+                            <th style="width: 120px;">Total</th>
+                            <th style="width: 110px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if rows %}
+                            {% for r in rows %}
+                            <tr>
+                                <td>{{ r.no }}</td>
+                                <td><strong>{{ r.konsumen.nama }}</strong></td>
+                                <td>{{ r.konsumen.telepon or '-' }}</td>
+                                <td>{{ r.konsumen.email or '-' }}</td>
+                                {% if r.order %}
+                                    <td>{{ r.order.tanggal_order.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ r.order.deskripsi }}</td>
+                                    <td>{{ r.order.jumlah }}</td>
+                                    <td>Rp {{ "%.2f"|format(r.order.harga_satuan) }}</td>
+                                    <td>Rp {{ "%.2f"|format(r.order.jumlah * r.order.harga_satuan) }}</td>
+                                    <td>{{ r.order.status }}</td>
+                                {% else %}
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="10" class="text-center text-muted py-4">Belum ada data untuk dicetak.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    @media print {
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+
+        body {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            font-family: "Segoe UI", Arial, sans-serif !important;
+            font-size: 12px !important;
+            line-height: 1.35 !important;
+        }
+
+        nav, nav.sidebar { display: none !important; }
+        .btn, .btn-toolbar, .page-header .d-flex { display: none !important; }
+
+        main {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .container-fluid {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .page-header {
+            border: 0 !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin-bottom: 12px !important;
+        }
+
+        .card {
+            border: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .card-header {
+            padding: 0 !important;
+            margin-bottom: 8px !important;
+        }
+
+        .table {
+            border-collapse: collapse !important;
+        }
+
+        .table thead th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            font-size: 11px !important;
+            text-transform: none !important;
+            border: 1px solid #cbd5e1 !important;
+            padding: 6px 8px !important;
+        }
+
+        .table tbody td {
+            border: 1px solid #cbd5e1 !important;
+            padding: 6px 8px !important;
+            vertical-align: top !important;
+        }
+
+        .table-hover tbody tr:hover {
+            background: transparent !important;
+        }
+    }
+</style>
+
+<script>
+    window.addEventListener('load', function () {
+        setTimeout(function () {
+            window.print();
+        }, 250);
+    });
+</script>
+{% endblock %}

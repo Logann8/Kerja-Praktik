@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app import db
 from app.forms.order_form import OrderForm
@@ -53,3 +53,30 @@ def konsumen(konsumen_id):
     return render_template('order/detail_modal_body.html', 
                          orders=orders, 
                          total_keseluruhan=total_keseluruhan)
+
+
+@bp.route('/<int:order_id>/status', methods=['POST'])
+def update_status(order_id):
+    order = Order.query.get_or_404(order_id)
+
+    status = (request.form.get('status') or '').strip()
+    allowed_status = {'Pending', 'Proses', 'Selesai'}
+
+    if not status:
+        flash('Status wajib dipilih.', 'danger')
+        return konsumen(order.konsumen_id), 400
+
+    if status not in allowed_status:
+        flash('Status tidak valid.', 'danger')
+        return konsumen(order.konsumen_id), 400
+
+    try:
+        order.status = status
+        db.session.commit()
+        flash('Status order berhasil diupdate!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Terjadi kesalahan: {str(e)}', 'danger')
+        return konsumen(order.konsumen_id), 500
+
+    return konsumen(order.konsumen_id)
