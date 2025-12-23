@@ -13,6 +13,8 @@ def index():
     page = request.args.get('page', 1, type=int)
     per_page = 10
 
+    form = KonsumenForm()
+
     search = request.args.get('search', '')
     query = Konsumen.query
 
@@ -32,7 +34,7 @@ def index():
         error_out=False,
     )
 
-    return render_template('konsumen/index.html', konsumen=konsumen, search=search)
+    return render_template('konsumen/index.html', konsumen=konsumen, search=search, form=form)
 
 
 @bp.route('/create', methods=['GET', 'POST'])

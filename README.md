@@ -1,6 +1,6 @@
-# Aplikasi Pembelian Barang dari Vendor
+# Aplikasi Pendataan Konsumen Internal
 
-Aplikasi Flask untuk mengelola pembelian barang dari vendor.
+Aplikasi Flask untuk pendataan konsumen internal perusahaan.
 
 ## Struktur Proyek
 
@@ -33,7 +33,7 @@ pip install -r requirements.txt
 1. Pastikan Laragon sudah berjalan
 2. Buat database baru di phpMyAdmin atau MySQL:
    ```sql
-   CREATE DATABASE pembelian_db;
+   CREATE DATABASE konsumen_db;
    ```
 
 ### 3. Konfigurasi Environment
@@ -47,7 +47,7 @@ MYSQL_HOST=localhost
 MYSQL_PORT=3306
 MYSQL_USER=root
 MYSQL_PASSWORD=
-MYSQL_DATABASE=pembelian_db
+MYSQL_DATABASE=konsumen_db
 SQLALCHEMY_ECHO=False
 ```
 
@@ -61,10 +61,9 @@ Aplikasi akan berjalan di `http://localhost:5000`
 
 ## Fitur
 
-- ✅ Modul Pembelian Barang dari Vendor
-- ✅ Manajemen Vendor
-- ❌ Modul Penjualan (tidak termasuk)
-- ❌ Modul Pengelolaan Stok (tidak termasuk)
+- ✅ Manajemen Data Konsumen (CRUD)
+- ✅ Dashboard Ringkasan
+- ✅ Laporan Data Konsumen (Cetak + PDF)
 
 ## Teknologi
 

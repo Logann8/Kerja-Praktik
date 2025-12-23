@@ -58,7 +58,7 @@
             padding: 0.75rem 1.5rem;
             margin: 0.25rem 0.75rem;
             border-radius: 0.5rem;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background-color 0.28s ease, transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.28s ease, color 0.28s ease;
             position: relative;
             z-index: 1;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -81,7 +81,7 @@
         .sidebar .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.1);
             color: white;
-            transform: translateX(4px);
+            transform: translateX(6px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
@@ -166,6 +166,19 @@
             }
         }
 
+        @keyframes fadeInSoft {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+                filter: blur(1px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
         .card {
             border: 1px solid var(--card-border);
             border-radius: 0.75rem;
@@ -180,6 +193,13 @@
             will-change: transform, box-shadow;
             backface-visibility: hidden;
             transform: translateZ(0);
+        }
+
+        .dashboard-card {
+            opacity: 0;
+            animation: fadeInSoft 520ms ease-out forwards;
+            animation-delay: calc(var(--animation-delay) * var(--i, 1));
+            will-change: transform, opacity, filter;
         }
         
         .card:hover {
@@ -316,28 +336,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path.startswith('/vendor') %}active{% endif %}" href="/vendor">
-                                <i class="bi bi-people me-2"></i>Vendor
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link {% if request.path.startswith('/konsumen') %}active{% endif %}" href="/konsumen">
                                 <i class="bi bi-person-vcard me-2"></i>Konsumen
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path.startswith('/barang') %}active{% endif %}" href="/barang">
-                                <i class="bi bi-box-seam me-2"></i>Barang
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.path.startswith('/pembelian') and not request.path.startswith('/laporan/pembelian') %}active{% endif %}" href="/pembelian">
-                                <i class="bi bi-cart-plus me-2"></i>Pembelian
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.path.startswith('/laporan/pembelian') %}active{% endif %}" href="/laporan/pembelian">
-                                <i class="bi bi-file-earmark-bar-graph me-2"></i>Laporan Pembelian
+                            <a class="nav-link {% if request.path.startswith('/laporan/konsumen') %}active{% endif %}" href="/laporan/konsumen">
+                                <i class="bi bi-file-earmark-text me-2"></i>Laporan Konsumen
                             </a>
                         </li>
                         <li class="nav-item mt-4">

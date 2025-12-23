@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Laporan Data Konsumen - Aplikasi Pendataan Konsumen{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
+        <div>
+            <h1 class="h2">Laporan Data Konsumen</h1>
+            <div class="text-muted small">Ringkasan data konsumen internal perusahaan</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary" href="{{ url_for('laporan.konsumen_pdf') }}">
+                <i class="bi bi-file-earmark-pdf"></i> Unduh PDF
+            </a>
+            <button type="button" class="btn btn-primary" onclick="window.print()">
+                <i class="bi bi-printer"></i> Cetak Laporan
+            </button>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="--i: 2">
+        <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Tabel Konsumen</h5>
+            <span class="text-muted small">Total: {{ konsumen|length }} konsumen</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 70px;">No</th>
+                            <th>Nama Konsumen</th>
+                            <th>Alamat</th>
+                            <th style="width: 180px;">No Telepon</th>
+                            <th style="width: 220px;">Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if konsumen %}
+                            {% for k in konsumen %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><strong>{{ k.nama }}</strong></td>
+                                <td>{{ k.alamat or '-' }}</td>
+                                <td>{{ k.telepon or '-' }}</td>
+                                <td>{{ k.email or '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">Belum ada data konsumen.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    @media print {
+        nav.sidebar { display: none !important; }
+        main { margin: 0 !important; padding: 0 !important; }
+        .btn, .btn-toolbar, .page-header .d-flex { display: none !important; }
+        .page-header { border: 0 !important; background: transparent !important; padding: 0 !important; }
+        .card { box-shadow: none !important; }
+    }
+</style>
+{% endblock %}
