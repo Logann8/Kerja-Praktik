@@ -3,5 +3,7 @@ from app.models.barang import Barang
 from app.models.pembelian import Pembelian
 from app.models.detail_pembelian import DetailPembelian
 
-__all__ = ['Vendor', 'Barang', 'Pembelian', 'DetailPembelian']
+from app.models.konsumen import Konsumen
+
+__all__ = ['Vendor', 'Barang', 'Pembelian', 'DetailPembelian', 'Konsumen']
 

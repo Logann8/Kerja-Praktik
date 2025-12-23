@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard - Aplikasi Pembelian{% endblock %}
+{% block title %}Dashboard - Aplikasi Pendataan Konsumen{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+    <div class="page-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
         <h1 class="h2">Dashboard</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <div class="btn-group me-2">
@@ -17,66 +17,44 @@
 
     <!-- Cards Row -->
     <div class="row g-4 mb-4">
-        <!-- Total Pembelian -->
-        <div class="col-12 col-md-6 col-xl-4" style="--i: 1">
+        <!-- Total Konsumen -->
+        <div class="col-12 col-md-6" style="--i: 1">
             <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.3s ease, box-shadow 0.3s ease;">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="bg-primary bg-opacity-10 p-3 rounded-3">
-                            <i class="bi bi-cart-check text-primary" style="font-size: 1.5rem;"></i>
+                            <i class="bi bi-person-vcard text-primary" style="font-size: 1.5rem;"></i>
                         </div>
                         <div class="text-end">
-                            <span class="text-muted small">Total Pembelian</span>
-                            <h3 class="mb-0">Rp 12.450.000</h3>
+                            <span class="text-muted small">Total Konsumen</span>
+                            <h3 class="mb-0">128</h3>
                         </div>
                     </div>
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="text-success small">
-                            <i class="bi bi-arrow-up"></i> 12.5% dari bulan lalu
+                            <i class="bi bi-arrow-up"></i> 8 konsumen baru (dummy)
                         </span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Jumlah Vendor -->
-        <div class="col-12 col-md-6 col-xl-4" style="--i: 2">
+        <!-- Total Data Tersimpan -->
+        <div class="col-12 col-md-6" style="--i: 2">
             <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.3s ease, box-shadow 0.3s ease;">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="bg-success bg-opacity-10 p-3 rounded-3">
-                            <i class="bi bi-people text-success" style="font-size: 1.5rem;"></i>
+                            <i class="bi bi-database-check text-success" style="font-size: 1.5rem;"></i>
                         </div>
                         <div class="text-end">
-                            <span class="text-muted small">Total Vendor</span>
-                            <h3 class="mb-0">24</h3>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center justify-content-between">
-                        <span class="text-success small">
-                            <i class="bi bi-arrow-up"></i> 3 vendor baru
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Barang -->
-        <div class="col-12 col-md-6 col-xl-4" style="--i: 3">
-            <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.3s ease, box-shadow 0.3s ease;">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="bg-info bg-opacity-10 p-3 rounded-3">
-                            <i class="bi bi-box-seam text-info" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div class="text-end">
-                            <span class="text-muted small">Total Barang</span>
-                            <h3 class="mb-0">156</h3>
+                            <span class="text-muted small">Total Data Tersimpan</span>
+                            <h3 class="mb-0">128</h3>
                         </div>
                     </div>
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="text-muted small">
-                            Stok tersedia
+                            Data konsumen tersimpan (dummy)
                         </span>
                     </div>
                 </div>
@@ -88,7 +66,7 @@
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-0 py-3">
-                    <h5 class="mb-0">Total Pembelian per Bulan</h5>
+                    <h5 class="mb-0">Total Konsumen per Bulan</h5>
                 </div>
                 <div class="card-body" style="height: 360px;">
                     <canvas id="pembelianPerBulanChart"></canvas>
@@ -97,43 +75,43 @@
         </div>
     </div>
 
-    <!-- Recent Transactions -->
+    <!-- Aktivitas Terakhir (Dummy) -->
     <div class="row mt-4" style="--i: 6">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-0 py-3">
-                    <h5 class="mb-0">Transaksi Terakhir</h5>
+                    <h5 class="mb-0">Aktivitas Terakhir</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>No. Transaksi</th>
+                                    <th>ID</th>
                                     <th>Tanggal</th>
-                                    <th>Vendor</th>
-                                    <th>Total</th>
+                                    <th>Nama Konsumen</th>
+                                    <th>Aksi</th>
                                     <th>Status</th>
                                     <th class="text-end">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>#TRX-001</td>
+                                    <td>#KSM-001</td>
                                     <td>20 Des 2025</td>
-                                    <td>PT Sumber Jaya</td>
-                                    <td>Rp 2.500.000</td>
-                                    <td><span class="badge bg-success">Selesai</span></td>
+                                    <td>Andi Pratama</td>
+                                    <td>Tambah</td>
+                                    <td><span class="badge bg-success">Tersimpan</span></td>
                                     <td class="text-end">
                                         <button class="btn btn-sm btn-outline-primary">Detail</button>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>#TRX-002</td>
+                                    <td>#KSM-002</td>
                                     <td>19 Des 2025</td>
-                                    <td>CV Maju Bersama</td>
-                                    <td>Rp 1.750.000</td>
-                                    <td><span class="badge bg-success">Selesai</span></td>
+                                    <td>Siti Rahma</td>
+                                    <td>Edit</td>
+                                    <td><span class="badge bg-success">Tersimpan</span></td>
                                     <td class="text-end">
                                         <button class="btn btn-sm btn-outline-primary">Detail</button>
                                     </td>
@@ -156,14 +134,14 @@
         if (!el) return;
 
         const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-        const data = [12500000, 9800000, 14250000, 11000000, 15800000, 13300000, 16500000, 14900000, 17200000, 16100000, 18500000, 19500000];
+        const data = [10, 12, 15, 14, 18, 17, 20, 22, 24, 25, 28, 30];
 
         new Chart(el, {
             type: 'bar',
             data: {
                 labels,
                 datasets: [{
-                    label: 'Total Pembelian (Rp)',
+                    label: 'Total Konsumen (dummy)',
                     data,
                     backgroundColor: 'rgba(59, 130, 246, 0.35)',
                     borderColor: 'rgba(59, 130, 246, 1)',
@@ -196,7 +174,7 @@
                         callbacks: {
                             label: function (ctx) {
                                 const v = ctx.raw || 0;
-                                return ' Rp ' + Number(v).toLocaleString('id-ID');
+                                return ' ' + Number(v).toLocaleString('id-ID') + ' konsumen';
                             }
                         }
                     }
@@ -206,7 +184,7 @@
                         beginAtZero: true,
                         ticks: {
                             callback: function (value) {
-                                return 'Rp ' + Number(value).toLocaleString('id-ID');
+                                return Number(value).toLocaleString('id-ID');
                             }
                         },
                         grid: {
