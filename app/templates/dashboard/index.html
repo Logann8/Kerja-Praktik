@@ -3,7 +3,7 @@
 {% block title %}Dashboard - Aplikasi Pendataan Konsumen{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 dashboard-page">
     <div class="page-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
         <h1 class="h2">Dashboard</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
@@ -40,44 +40,71 @@
         </div>
     </div>
 
-    <!-- Cards Row -->
     <div class="row g-4 mb-4">
-        <!-- Total Konsumen -->
-        <div class="col-12 col-md-6" style="--i: 1">
-            <div class="card dashboard-card h-100 border-0 shadow-sm" style="transition: transform 0.3s ease, box-shadow 0.3s ease;">
+        <div class="col-12 col-md-6 col-xl-3" style="--i: 1">
+            <div class="card stat-card h-100 border-0 shadow-sm">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-3">
-                            <i class="bi bi-person-vcard text-primary" style="font-size: 1.5rem;"></i>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-icon bg-primary bg-opacity-10">
+                            <i class="bi bi-person-vcard text-primary"></i>
                         </div>
                         <div class="text-end">
-                            <span class="text-muted small">Total Konsumen</span>
-                            <h3 class="mb-0">{{ total_konsumen }}</h3>
+                            <div class="text-muted small">Total Konsumen</div>
+                            <div class="stat-value">{{ total_konsumen }}</div>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center justify-content-between">
-                        <span class="text-muted small">Jumlah konsumen terdaftar</span>
-                    </div>
+                    <div class="text-muted small mt-3">Jumlah konsumen terdaftar</div>
                 </div>
             </div>
         </div>
 
-        <!-- Total Order -->
-        <div class="col-12 col-md-6" style="--i: 2">
-            <div class="card dashboard-card h-100 border-0 shadow-sm" style="transition: transform 0.3s ease, box-shadow 0.3s ease;">
+        <div class="col-12 col-md-6 col-xl-3" style="--i: 2">
+            <div class="card stat-card h-100 border-0 shadow-sm">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="bg-success bg-opacity-10 p-3 rounded-3">
-                            <i class="bi bi-database-check text-success" style="font-size: 1.5rem;"></i>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-icon bg-primary bg-opacity-10">
+                            <i class="bi bi-bag-check text-primary"></i>
                         </div>
                         <div class="text-end">
-                            <span class="text-muted small">Total Order</span>
-                            <h3 class="mb-0">{{ total_order }}</h3>
+                            <div class="text-muted small">Total Order</div>
+                            <div class="stat-value">{{ total_order }}</div>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center justify-content-between">
-                        <span class="text-muted small">Total order yang tercatat</span>
+                    <div class="text-muted small mt-3">Total order yang tercatat</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3" style="--i: 3">
+            <div class="card stat-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-icon bg-primary bg-opacity-10">
+                            <i class="bi bi-hourglass-split text-primary"></i>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-muted small">Order Pending</div>
+                            <div class="stat-value">{{ status_summary['Pending'] }}</div>
+                        </div>
                     </div>
+                    <div class="text-muted small mt-3">Menunggu diproses</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3" style="--i: 4">
+            <div class="card stat-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-icon bg-primary bg-opacity-10">
+                            <i class="bi bi-check2-circle text-primary"></i>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-muted small">Order Selesai</div>
+                            <div class="stat-value">{{ status_summary['Selesai'] }}</div>
+                        </div>
+                    </div>
+                    <div class="text-muted small mt-3">Order selesai</div>
                 </div>
             </div>
         </div>
@@ -92,11 +119,11 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="text-muted">Pending</div>
-                        <span class="badge bg-secondary">{{ status_summary['Pending'] }}</span>
+                        <span class="badge bg-warning text-dark">{{ status_summary['Pending'] }}</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="text-muted">Produksi</div>
-                        <span class="badge bg-warning text-dark">{{ status_summary['Produksi'] }}</span>
+                        <span class="badge bg-primary">{{ status_summary['Produksi'] }}</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="text-muted">Selesai</div>
@@ -118,10 +145,9 @@
                             <thead class="table-light">
                                 <tr>
                                     <th style="width: 140px;">Tanggal</th>
-                                    <th>Nama Konsumen</th>
-                                    <th>Deskripsi</th>
-                                    <th style="width: 140px;">Total</th>
-                                    <th style="width: 120px;">Status</th>
+                                    <th>Konsumen</th>
+                                    <th style="width: 140px;">Status</th>
+                                    <th style="width: 160px;" class="text-end">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -132,22 +158,21 @@
                                         <tr>
                                             <td>{{ o.tanggal_order.strftime('%d/%m/%Y') }}</td>
                                             <td><strong>{{ k.nama }}</strong></td>
-                                            <td>{{ o.deskripsi }}</td>
-                                            <td>Rp {{ "%.2f"|format(o.jumlah * o.harga_satuan) }}</td>
                                             <td>
                                                 {% if o.status == 'Selesai' %}
                                                     <span class="badge bg-success">Selesai</span>
                                                 {% elif o.status == 'Proses' %}
-                                                    <span class="badge bg-warning text-dark">Produksi</span>
+                                                    <span class="badge bg-primary">Produksi</span>
                                                 {% else %}
-                                                    <span class="badge bg-secondary">Pending</span>
+                                                    <span class="badge bg-warning text-dark">Pending</span>
                                                 {% endif %}
                                             </td>
+                                            <td class="text-end">Rp {{ "%.2f"|format(o.jumlah * o.harga_satuan) }}</td>
                                         </tr>
                                     {% endfor %}
                                 {% else %}
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted py-4">Belum ada order.</td>
+                                        <td colspan="4" class="text-center text-muted py-4">Belum ada order.</td>
                                     </tr>
                                 {% endif %}
                             </tbody>
@@ -160,4 +185,69 @@
 </div>
 {% endblock %}
 
-{% block scripts %}{% endblock %}
+{% block scripts %}
+<style>
+    @keyframes dashboardFadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stat-card {
+        border-radius: 0.9rem;
+        background: linear-gradient(180deg, rgba(37, 99, 235, 0.06) 0%, rgba(255, 255, 255, 1) 55%);
+        transition: transform 180ms ease, box-shadow 180ms ease;
+        will-change: transform, box-shadow;
+        opacity: 0;
+        animation: dashboardFadeUp 520ms ease-out forwards;
+        animation-delay: calc(var(--i, 1) * 80ms);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 34px rgba(2, 6, 23, 0.10);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+    }
+
+    .stat-icon i {
+        font-size: 1.35rem;
+    }
+
+    .stat-value {
+        font-size: 1.6rem;
+        font-weight: 750;
+        letter-spacing: -0.02em;
+        color: #0b2a6f;
+        line-height: 1.1;
+    }
+
+    .dashboard-page .card.border-0.shadow-sm:not(.stat-card):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 34px rgba(2, 6, 23, 0.10) !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .stat-card {
+            animation: none;
+            opacity: 1;
+        }
+
+        .stat-card,
+        .dashboard-page .card.border-0.shadow-sm:not(.stat-card) {
+            transition: none;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,10 +1,10 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
-from sqlalchemy import func, or_
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from sqlalchemy import exists, func, or_
 
 from app import db
 from app.forms.konsumen_form import KonsumenForm
 from app.forms.order_form import OrderForm
-from app.models import Konsumen
+from app.models import Konsumen, Order
 
 bp = Blueprint('konsumen', __name__)
 
@@ -12,12 +12,13 @@ bp = Blueprint('konsumen', __name__)
 @bp.route('/')
 def index():
     page = request.args.get('page', 1, type=int)
-    per_page = 10
+    per_page = current_app.config.get('ITEMS_PER_PAGE', 10)
 
     form = KonsumenForm()
     order_form = OrderForm()
 
     q = request.args.get('q', '')
+    filter_value = request.args.get('filter', '')
     query = Konsumen.query
 
     if q:
@@ -30,13 +31,22 @@ def index():
             )
         )
 
+    if filter_value == 'memiliki_order':
+        query = query.filter(
+            exists().where(Order.konsumen_id == Konsumen.id)
+        )
+    elif filter_value == 'belum_order':
+        query = query.filter(
+            ~exists().where(Order.konsumen_id == Konsumen.id)
+        )
+
     konsumen = query.order_by(Konsumen.created_at.desc()).paginate(
         page=page,
         per_page=per_page,
         error_out=False,
     )
 
-    return render_template('konsumen/index.html', konsumen=konsumen, q=q, form=form, order_form=order_form)
+    return render_template('konsumen/index.html', konsumen=konsumen, q=q, filter=filter_value, form=form, order_form=order_form)
 
 
 @bp.route('/create', methods=['GET', 'POST'])
