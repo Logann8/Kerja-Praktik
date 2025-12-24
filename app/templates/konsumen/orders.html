@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Histori Order Konsumen - Aplikasi Pendataan Konsumen{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
+        <div>
+            <h1 class="h2">Histori Order Konsumen</h1>
+            <div class="text-muted small">Konsumen: <strong>{{ konsumen.nama }}</strong></div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary" href="{{ url_for('konsumen.index') }}">
+                <i class="bi bi-arrow-left"></i> Kembali
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Daftar Order</h5>
+            <span class="text-muted small">Total: {{ orders|length }} order</span>
+        </div>
+        <div class="card-body">
+            {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 140px;">Tanggal</th>
+                                <th>Deskripsi / Nama Barang</th>
+                                <th style="width: 90px;">Jumlah</th>
+                                <th style="width: 140px;">Harga Satuan</th>
+                                <th style="width: 130px;">Status</th>
+                                <th style="width: 140px;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for o in orders %}
+                            <tr>
+                                <td>{{ o.tanggal_order.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ o.deskripsi }}</td>
+                                <td>{{ o.jumlah }}</td>
+                                <td>Rp {{ "%.2f"|format(o.harga_satuan) }}</td>
+                                <td>
+                                    {% if o.status == 'Selesai' %}
+                                        <span class="badge bg-success">Selesai</span>
+                                    {% elif o.status == 'Proses' %}
+                                        <span class="badge bg-primary">Produksi</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('order.update_status', order_id=o.id, konsumen_id=konsumen.id) }}">
+                                        Ubah Status
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4 text-muted">
+                    Belum ada order untuk konsumen ini
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

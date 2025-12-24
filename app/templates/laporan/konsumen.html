@@ -10,6 +10,12 @@
             <div class="text-muted small">Ringkasan data konsumen internal perusahaan</div>
         </div>
         <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary" href="{{ url_for('laporan.konsumen_csv') }}">
+                <i class="bi bi-filetype-csv"></i> Export Konsumen (CSV)
+            </a>
+            <a class="btn btn-outline-primary" href="{{ url_for('laporan.order_csv') }}">
+                <i class="bi bi-filetype-csv"></i> Export Order (CSV)
+            </a>
             <a class="btn btn-outline-primary" href="{{ url_for('laporan.konsumen_pdf') }}">
                 <i class="bi bi-file-earmark-pdf"></i> Unduh PDF
             </a>

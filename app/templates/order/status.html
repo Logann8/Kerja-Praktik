@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Ubah Status Order - Aplikasi Pendataan Konsumen{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="page-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
+        <div>
+            <h1 class="h2">Ubah Status Order</h1>
+            <div class="text-muted small">Order ID: <strong>#{{ order.id }}</strong></div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary" href="{{ url_for('konsumen.orders', id=konsumen_id) }}">
+                <i class="bi bi-arrow-left"></i> Kembali
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('order.update_status', order_id=order.id) }}">
+                <input type="hidden" name="konsumen_id" value="{{ konsumen_id }}">
+
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status" required>
+                        <option value="" disabled>Pilih status...</option>
+                        <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                        <option value="Proses" {% if order.status == 'Proses' %}selected{% endif %}>Produksi</option>
+                        <option value="Selesai" {% if order.status == 'Selesai' %}selected{% endif %}>Selesai</option>
+                    </select>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>Simpan
+                    </button>
+                    <a class="btn btn-secondary" href="{{ url_for('konsumen.orders', id=konsumen_id) }}">Batal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,6 +4,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app import db
 from app.forms.order_form import OrderForm
+from app.forms.status_order_form import StatusOrderForm
 from app.models.order import Order
 
 bp = Blueprint('order', __name__)
@@ -55,8 +56,48 @@ def konsumen(konsumen_id):
                          total_keseluruhan=total_keseluruhan)
 
 
-@bp.route('/<int:order_id>/status', methods=['POST'])
+@bp.route('/<int:order_id>/status', methods=['GET', 'POST'])
 def update_status(order_id):
+    order = Order.query.get_or_404(order_id)
+
+    if request.method == 'GET':
+        return_to_konsumen_id = request.args.get('konsumen_id', type=int) or order.konsumen_id
+        return render_template('order/status.html', order=order, konsumen_id=return_to_konsumen_id)
+
+    form = StatusOrderForm()
+
+    if not form.validate_on_submit():
+        first_error = None
+        for field_errors in form.errors.values():
+            if field_errors:
+                first_error = field_errors[0]
+                break
+        flash(first_error or 'Status wajib dipilih.', 'danger')
+        return redirect(request.referrer or url_for('konsumen.index'))
+
+    status = (form.status.data or '').strip()
+    allowed_status = {'Pending', 'Proses', 'Selesai'}
+    if status not in allowed_status:
+        flash('Status tidak valid.', 'danger')
+        return redirect(request.referrer or url_for('konsumen.index'))
+
+    try:
+        order.status = status
+        db.session.commit()
+        flash('Status order berhasil diupdate!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Terjadi kesalahan: {str(e)}', 'danger')
+
+    next_url = (form.next.data or '').strip()
+    if next_url.startswith('/') and not next_url.startswith('//'):
+        return redirect(next_url)
+
+    return redirect(request.referrer or url_for('konsumen.index'))
+
+
+@bp.route('/<int:order_id>/status/ajax', methods=['POST'])
+def update_status_ajax(order_id):
     order = Order.query.get_or_404(order_id)
 
     status = (request.form.get('status') or '').strip()

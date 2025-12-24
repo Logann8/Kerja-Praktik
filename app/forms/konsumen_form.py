@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField
-from wtforms.validators import DataRequired, Email, Length, Optional
+from wtforms.validators import DataRequired, Length, Optional
 
 
 class KonsumenForm(FlaskForm):
@@ -10,7 +10,7 @@ class KonsumenForm(FlaskForm):
             DataRequired(message='Nama Konsumen wajib diisi'),
             Length(max=100, message='Nama Konsumen maksimal 100 karakter'),
         ],
-        render_kw={'class': 'form-control', 'placeholder': 'Masukkan nama konsumen'},
+        render_kw={'class': 'form-control', 'placeholder': 'Masukkan nama konsumen', 'required': True},
     )
 
     alamat = TextAreaField(
@@ -32,7 +32,6 @@ class KonsumenForm(FlaskForm):
         'Email',
         validators=[
             Optional(),
-            Email(message='Format email tidak valid'),
             Length(max=100, message='Email maksimal 100 karakter'),
         ],
         render_kw={'class': 'form-control', 'placeholder': 'Masukkan email', 'type': 'email'},

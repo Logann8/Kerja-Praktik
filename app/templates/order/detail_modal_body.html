@@ -28,7 +28,7 @@
                                 {% if order.status == 'Selesai' %}bg-success
                                 {% elif order.status == 'Proses' %}bg-warning
                                 {% else %}bg-secondary{% endif %}">
-                                {{ order.status }}
+                                {% if order.status == 'Proses' %}Produksi{% else %}{{ order.status }}{% endif %}
                             </span>
                         </td>
                         <td>
