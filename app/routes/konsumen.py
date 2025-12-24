@@ -17,11 +17,11 @@ def index():
     form = KonsumenForm()
     order_form = OrderForm()
 
-    search = request.args.get('search', '')
+    q = request.args.get('q', '')
     query = Konsumen.query
 
-    if search:
-        search_pattern = f'%{search}%'
+    if q:
+        search_pattern = f'%{q}%'
         query = query.filter(
             or_(
                 func.lower(Konsumen.nama).like(func.lower(search_pattern)),
@@ -36,7 +36,7 @@ def index():
         error_out=False,
     )
 
-    return render_template('konsumen/index.html', konsumen=konsumen, search=search, form=form, order_form=order_form)
+    return render_template('konsumen/index.html', konsumen=konsumen, q=q, form=form, order_form=order_form)
 
 
 @bp.route('/create', methods=['GET', 'POST'])

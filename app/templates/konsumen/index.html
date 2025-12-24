@@ -259,19 +259,12 @@
 
         <div class="card mb-4">
             <div class="card-body">
-                <form method="GET" action="{{ url_for('konsumen.index') }}" class="row g-3">
-                    <div class="col-md-10">
-                        <input type="text"
-                               class="form-control"
-                               name="search"
-                               placeholder="Cari konsumen (nama, email, atau telepon)..."
-                               value="{{ search }}">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-outline-primary w-100">
-                            <i class="bi bi-search"></i> Cari
-                        </button>
-                    </div>
+                <form method="GET" action="{{ url_for('konsumen.index') }}">
+                    <input type="text"
+                           class="form-control"
+                           name="q"
+                           placeholder="Cari konsumen (nama / no HP / email)"
+                           value="{{ q }}">
                 </form>
             </div>
         </div>
@@ -352,7 +345,7 @@
                     <ul class="pagination justify-content-center">
                         {% if konsumen.has_prev %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('konsumen.index', page=konsumen.prev_num, search=search) }}">
+                            <a class="page-link" href="{{ url_for('konsumen.index', page=konsumen.prev_num, q=q) }}">
                                 <i class="bi bi-chevron-left"></i> Sebelumnya
                             </a>
                         </li>
@@ -370,7 +363,7 @@
                                 </li>
                                 {% else %}
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ url_for('konsumen.index', page=page_num, search=search) }}">
+                                    <a class="page-link" href="{{ url_for('konsumen.index', page=page_num, q=q) }}">
                                         {{ page_num }}
                                     </a>
                                 </li>
@@ -384,7 +377,7 @@
 
                         {% if konsumen.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('konsumen.index', page=konsumen.next_num, search=search) }}">
+                            <a class="page-link" href="{{ url_for('konsumen.index', page=konsumen.next_num, q=q) }}">
                                 Selanjutnya <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>
