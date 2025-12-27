@@ -3,12 +3,12 @@ from datetime import datetime
 from sqlalchemy import func
 
 from app import db
-from app.models import NotifikasiInternal, Setting
+from app.models import AppSetting, NotifikasiInternal
 from app.utils.notifications import get_inactive_customers
 
 
 def generate_inactive_customer_notifications(days=7):
-    setting = Setting.query.filter_by(key='inactive_customer_7_days').first()
+    setting = AppSetting.query.filter_by(key='inactive_customer_7_days').first()
     if not setting or not bool(setting.value):
         return
 

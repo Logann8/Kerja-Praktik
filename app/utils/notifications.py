@@ -3,11 +3,11 @@ from datetime import date, timedelta
 from sqlalchemy import func, or_
 
 from app import db
-from app.models import Konsumen, Order, Setting
+from app.models import AppSetting, Konsumen, Order
 
 
 def get_inactive_customers(days=7):
-    setting = Setting.query.filter_by(key='inactive_customer_7_days').first()
+    setting = AppSetting.query.filter_by(key='inactive_customer_7_days').first()
     if not setting or not bool(setting.value):
         return []
 
@@ -35,3 +35,67 @@ def get_inactive_customers(days=7):
     )
 
     return rows
+
+
+def get_inactive_customers_with_last_order(days=7, limit=10):
+    setting = AppSetting.query.filter_by(key='inactive_customer_7_days').first()
+    if not setting or not bool(setting.value):
+        return []
+
+    cutoff = date.today() - timedelta(days=int(days))
+
+    last_order_sq = (
+        db.session.query(
+            Order.konsumen_id.label('konsumen_id'),
+            func.max(Order.tanggal_order).label('last_order'),
+        )
+        .group_by(Order.konsumen_id)
+        .subquery()
+    )
+
+    query = (
+        db.session.query(Konsumen.nama, last_order_sq.c.last_order)
+        .outerjoin(last_order_sq, last_order_sq.c.konsumen_id == Konsumen.id)
+        .filter(
+            or_(
+                last_order_sq.c.last_order.is_(None),
+                last_order_sq.c.last_order < cutoff,
+            )
+        )
+        .order_by(Konsumen.nama.asc())
+    )
+
+    if limit is not None:
+        query = query.limit(int(limit))
+
+    return query.all()
+
+
+def count_inactive_customers(days=7):
+    setting = AppSetting.query.filter_by(key='inactive_customer_7_days').first()
+    if not setting or not bool(setting.value):
+        return 0
+
+    cutoff = date.today() - timedelta(days=int(days))
+
+    last_order_sq = (
+        db.session.query(
+            Order.konsumen_id.label('konsumen_id'),
+            func.max(Order.tanggal_order).label('last_order'),
+        )
+        .group_by(Order.konsumen_id)
+        .subquery()
+    )
+
+    return (
+        db.session.query(func.count(Konsumen.id))
+        .outerjoin(last_order_sq, last_order_sq.c.konsumen_id == Konsumen.id)
+        .filter(
+            or_(
+                last_order_sq.c.last_order.is_(None),
+                last_order_sq.c.last_order < cutoff,
+            )
+        )
+        .scalar()
+        or 0
+    )

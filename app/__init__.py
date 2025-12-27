@@ -42,18 +42,22 @@ def create_app(config_name='development'):
     with app.app_context():
         db.create_all()
 
-        from app.models import Setting
+        from app.models import AppSetting
 
-        if not Setting.query.filter_by(key='inactive_customer_7_days').first():
-            db.session.add(Setting(key='inactive_customer_7_days', value=True))
+        if not AppSetting.query.filter_by(key='inactive_customer_7_days').first():
+            db.session.add(AppSetting(key='inactive_customer_7_days', value=True))
             db.session.commit()
 
     @app.context_processor
     def inject_unread_notifications():
         from app.models import NotifikasiInternal
-        from app.utils.notification_service import generate_inactive_customer_notifications
+        from app.utils.inactive_customer_notification import inactive_customer_notification
+        from app.utils.notifications import count_inactive_customers, get_inactive_customers_with_last_order
 
-        generate_inactive_customer_notifications()
+        inactive_customer_notification()
+
+        inactive_customers = get_inactive_customers_with_last_order(days=7, limit=20)
+        inactive_customers_count = int(count_inactive_customers(days=7) or 0)
 
         unread_notifications = (
             NotifikasiInternal.query.filter_by(is_read=False)
@@ -65,9 +69,14 @@ def create_app(config_name='development'):
             NotifikasiInternal.query.filter_by(is_read=False).count()
         )
 
+        latest_unread_notification = unread_notifications[0] if unread_notifications else None
+
         return {
             'unread_notifications': unread_notifications,
             'unread_notifications_count': unread_notifications_count,
+            'latest_unread_notification': latest_unread_notification,
+            'inactive_customers': inactive_customers,
+            'inactive_customers_count': inactive_customers_count,
         }
     
     return app
