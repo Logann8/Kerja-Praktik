@@ -345,6 +345,11 @@
                                 <i class="bi bi-file-earmark-text me-2"></i>Laporan Konsumen
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path.startswith('/notifikasi') %}active{% endif %}" href="/notifikasi">
+                                <i class="bi bi-bell me-2"></i>Kelola Notifikasi
+                            </a>
+                        </li>
                         <li class="nav-item mt-4">
                             <a class="nav-link text-danger" href="/logout">
                                 <i class="bi bi-box-arrow-right me-2"></i>Logout
@@ -356,6 +361,33 @@
 
             <!-- Main Content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                <div class="d-flex justify-content-end mb-3">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell"></i>
+                            {% if unread_notifications_count and unread_notifications_count > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ unread_notifications_count }}
+                                </span>
+                            {% endif %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" style="min-width: 340px;">
+                            {% if unread_notifications and unread_notifications|length > 0 %}
+                                {% for n in unread_notifications %}
+                                    <li class="px-3 py-2">
+                                        <div class="fw-semibold">{{ n.judul }}</div>
+                                        <div class="text-muted small">{{ n.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+                                    </li>
+                                    {% if not loop.last %}
+                                        <li><hr class="dropdown-divider"></li>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <li class="px-3 py-3 text-center text-muted">Tidak ada notifikasi</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
                 <div class="container-fluid">
                     {% block content %}{% endblock %}
                 </div>

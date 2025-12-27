@@ -8,7 +8,7 @@ class StatusOrderForm(FlaskForm):
 
     status = SelectField(
         'Status',
-        choices=[('Pending', 'Pending'), ('Proses', 'Produksi'), ('Selesai', 'Selesai')],
+        choices=[('pending', 'Pending'), ('produksi', 'Produksi'), ('selesai', 'Selesai')],
         validators=[DataRequired(message='Status wajib dipilih')],
         render_kw={'class': 'form-select'},
     )

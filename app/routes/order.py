@@ -14,6 +14,13 @@ bp = Blueprint('order', __name__)
 def create():
     form = OrderForm()
 
+    try:
+        print('[ORDER.CREATE] called')
+        print(f"[ORDER.CREATE] db_url={db.engine.url}")
+        print(f"[ORDER.CREATE] form_data={form.data}")
+    except Exception:
+        pass
+
     if form.validate_on_submit():
         tanggal = form.tanggal_order.data
         tanggal_dt = datetime.combine(tanggal, datetime.min.time())
@@ -33,8 +40,16 @@ def create():
             flash('Order berhasil ditambahkan!', 'success')
         except Exception as e:
             db.session.rollback()
+            try:
+                print(f"[ORDER.CREATE] DB EXCEPTION: {repr(e)}")
+            except Exception:
+                pass
             flash(f'Terjadi kesalahan: {str(e)}', 'danger')
     else:
+        try:
+            print(f"[ORDER.CREATE] form_errors={form.errors}")
+        except Exception:
+            pass
         first_error = None
         for field_errors in form.errors.values():
             if field_errors:
@@ -60,13 +75,31 @@ def konsumen(konsumen_id):
 def update_status(order_id):
     order = Order.query.get_or_404(order_id)
 
+    try:
+        print(f"[ORDER.STATUS] method={request.method}")
+    except Exception:
+        pass
+
     if request.method == 'GET':
         return_to_konsumen_id = request.args.get('konsumen_id', type=int) or order.konsumen_id
-        return render_template('order/status.html', order=order, konsumen_id=return_to_konsumen_id)
+        form = StatusOrderForm(obj=order)
+        db_to_form = {'Pending': 'pending', 'Proses': 'produksi', 'Selesai': 'selesai'}
+        form.status.data = db_to_form.get(order.status, '')
+        return render_template('order/status.html', order=order, konsumen_id=return_to_konsumen_id, form=form)
 
     form = StatusOrderForm()
+    is_valid = form.validate_on_submit()
+    if not is_valid:
+        if 'csrf_token' not in request.form:
+            form = StatusOrderForm(meta={'csrf': False})
+            is_valid = form.validate()
 
-    if not form.validate_on_submit():
+    try:
+        print(f"[ORDER.STATUS] form_status_data={form.status.data!r}")
+    except Exception:
+        pass
+
+    if not is_valid:
         first_error = None
         for field_errors in form.errors.values():
             if field_errors:
@@ -76,14 +109,31 @@ def update_status(order_id):
         return redirect(request.referrer or url_for('konsumen.index'))
 
     status = (form.status.data or '').strip()
-    allowed_status = {'Pending', 'Proses', 'Selesai'}
-    if status not in allowed_status:
+    status_map = {
+        'pending': 'Pending',
+        'produksi': 'Proses',
+        'selesai': 'Selesai',
+        'Pending': 'Pending',
+        'Proses': 'Proses',
+        'Selesai': 'Selesai',
+    }
+    if status not in status_map:
         flash('Status tidak valid.', 'danger')
         return redirect(request.referrer or url_for('konsumen.index'))
 
+    new_status = status_map[status]
+
     try:
-        order.status = status
+        try:
+            print(f"[ORDER.STATUS] before_commit order_status={order.status!r} -> new_status={new_status!r}")
+        except Exception:
+            pass
+        order.status = new_status
         db.session.commit()
+        try:
+            print(f"[ORDER.STATUS] after_commit order_status={order.status!r}")
+        except Exception:
+            pass
         flash('Status order berhasil diupdate!', 'success')
     except Exception as e:
         db.session.rollback()

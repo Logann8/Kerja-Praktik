@@ -19,16 +19,12 @@
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             <form method="POST" action="{{ url_for('order.update_status', order_id=order.id) }}">
+                {{ form.csrf_token }}
                 <input type="hidden" name="konsumen_id" value="{{ konsumen_id }}">
 
                 <div class="mb-3">
                     <label for="status" class="form-label">Status</label>
-                    <select class="form-select" id="status" name="status" required>
-                        <option value="" disabled>Pilih status...</option>
-                        <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
-                        <option value="Proses" {% if order.status == 'Proses' %}selected{% endif %}>Produksi</option>
-                        <option value="Selesai" {% if order.status == 'Selesai' %}selected{% endif %}>Selesai</option>
-                    </select>
+                    {{ form.status(id='status') }}
                 </div>
 
                 <div class="d-flex gap-2">

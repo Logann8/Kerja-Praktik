@@ -64,7 +64,7 @@
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <form method="POST" action="{{ url_for('order.create') }}">
-                        {{ order_form.hidden_tag() }}
+                        {{ order_form.csrf_token }}
 
                         <div class="modal-header">
                             <h5 class="modal-title" id="tambahOrderModalLabel">
@@ -78,7 +78,7 @@
                                 Konsumen: <strong id="tambahOrderNamaKonsumen"></strong>
                             </div>
 
-                            {{ order_form.konsumen_id(id='order_konsumen_id') }}
+                            <input type="hidden" name="konsumen_id" id="order_konsumen_id">
 
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -305,7 +305,7 @@
                                         <i class="bi bi-bag-plus"></i>
                                     </button>
                                     <a class="btn btn-sm btn-outline-primary"
-                                       title="Lihat Order"
+                                       title="Histori Order"
                                        href="{{ url_for('konsumen.orders', id=k.id) }}">
                                         <i class="bi bi-receipt"></i>
                                     </a>
@@ -443,44 +443,57 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const hapusModal = document.getElementById('hapusKonsumenModal');
-    if (!hapusModal) return;
+    if (hapusModal) {
+        hapusModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            if (!button) return;
 
-    hapusModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        if (!button) return;
+            const form = hapusModal.querySelector('form');
+            const nama = button.getAttribute('data-nama') || '';
+            const action = button.getAttribute('data-action') || '';
 
-        const form = hapusModal.querySelector('form');
-        const nama = button.getAttribute('data-nama') || '';
-        const action = button.getAttribute('data-action') || '';
+            if (form && action) form.setAttribute('action', action);
 
-        if (form && action) form.setAttribute('action', action);
-
-        const namaEl = hapusModal.querySelector('#hapusKonsumenNama');
-        if (namaEl) namaEl.textContent = nama;
-    });
+            const namaEl = hapusModal.querySelector('#hapusKonsumenNama');
+            if (namaEl) namaEl.textContent = nama;
+        });
+    }
 
     const orderModal = document.getElementById('tambahOrderModal');
-    if (!orderModal) return;
+    if (orderModal) {
+        const setOrderKonsumen = (buttonEl) => {
+            if (!buttonEl) return;
 
-    orderModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        if (!button) return;
+            const konsumenId = buttonEl.getAttribute('data-konsumen-id') || '';
+            const konsumenNama = buttonEl.getAttribute('data-konsumen-nama') || '';
 
-        const konsumenId = button.getAttribute('data-konsumen-id') || '';
-        const konsumenNama = button.getAttribute('data-konsumen-nama') || '';
+            const namaEl = orderModal.querySelector('#tambahOrderNamaKonsumen');
+            if (namaEl) namaEl.textContent = konsumenNama;
 
-        const namaEl = orderModal.querySelector('#tambahOrderNamaKonsumen');
-        if (namaEl) namaEl.textContent = konsumenNama;
+            const hiddenId = orderModal.querySelector('#order_konsumen_id');
+            if (hiddenId) {
+                console.log(konsumenId);
+                hiddenId.value = konsumenId;
+            }
+        };
 
-        const hiddenId = orderModal.querySelector('#order_konsumen_id');
-        if (hiddenId) hiddenId.value = konsumenId;
+        const tambahOrderButtons = document.querySelectorAll('[data-bs-target="#tambahOrderModal"]');
+        tambahOrderButtons.forEach((btn) => {
+            btn.addEventListener('click', function () {
+                setOrderKonsumen(btn);
+            });
+        });
 
-        const statusSelect = orderModal.querySelector('#order_status');
-        if (statusSelect && !statusSelect.value) statusSelect.value = 'Pending';
-    });
+        orderModal.addEventListener('show.bs.modal', function () {
+            const statusSelect = orderModal.querySelector('#order_status');
+            if (statusSelect && !statusSelect.value) statusSelect.value = 'Pending';
+        });
+    }
 
     const detailOrderModal = document.getElementById('detailOrderModal');
-    if (!detailOrderModal) return;
+    if (!detailOrderModal) {
+        return;
+    }
 
     const ubahStatusOrderModal = document.getElementById('ubahStatusOrderModal');
     const ubahStatusOrderForm = document.getElementById('ubahStatusOrderForm');

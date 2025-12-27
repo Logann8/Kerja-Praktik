@@ -6,7 +6,7 @@ from config import config
 db = SQLAlchemy()
 
 
-def create_app(config_name='default'):
+def create_app(config_name='development'):
     """
     App Factory Pattern untuk membuat instance Flask
     
@@ -41,6 +41,34 @@ def create_app(config_name='default'):
     # Create database tables
     with app.app_context():
         db.create_all()
+
+        from app.models import Setting
+
+        if not Setting.query.filter_by(key='inactive_customer_7_days').first():
+            db.session.add(Setting(key='inactive_customer_7_days', value=True))
+            db.session.commit()
+
+    @app.context_processor
+    def inject_unread_notifications():
+        from app.models import NotifikasiInternal
+        from app.utils.notification_service import generate_inactive_customer_notifications
+
+        generate_inactive_customer_notifications()
+
+        unread_notifications = (
+            NotifikasiInternal.query.filter_by(is_read=False)
+            .order_by(NotifikasiInternal.created_at.desc())
+            .limit(5)
+            .all()
+        )
+        unread_notifications_count = (
+            NotifikasiInternal.query.filter_by(is_read=False).count()
+        )
+
+        return {
+            'unread_notifications': unread_notifications,
+            'unread_notifications_count': unread_notifications_count,
+        }
     
     return app
 

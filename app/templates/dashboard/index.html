@@ -49,7 +49,7 @@
                             <i class="bi bi-person-vcard text-primary"></i>
                         </div>
                         <div class="text-end">
-                            <div class="text-muted small">Total Konsumen</div>
+                            <div class="text-muted small">Jumlah Konsumen</div>
                             <div class="stat-value">{{ total_konsumen }}</div>
                         </div>
                     </div>
@@ -66,7 +66,7 @@
                             <i class="bi bi-bag-check text-primary"></i>
                         </div>
                         <div class="text-end">
-                            <div class="text-muted small">Total Order</div>
+                            <div class="text-muted small">Jumlah Order</div>
                             <div class="stat-value">{{ total_order }}</div>
                         </div>
                     </div>
@@ -79,8 +79,8 @@
             <div class="card stat-card h-100 border-0 shadow-sm">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-icon bg-primary bg-opacity-10">
-                            <i class="bi bi-hourglass-split text-primary"></i>
+                        <div class="stat-icon bg-warning bg-opacity-10">
+                            <i class="bi bi-hourglass-split text-warning"></i>
                         </div>
                         <div class="text-end">
                             <div class="text-muted small">Order Pending</div>
@@ -97,7 +97,24 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="stat-icon bg-primary bg-opacity-10">
-                            <i class="bi bi-check2-circle text-primary"></i>
+                            <i class="bi bi-gear-wide-connected text-primary"></i>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-muted small">Order Produksi</div>
+                            <div class="stat-value">{{ status_summary['Produksi'] }}</div>
+                        </div>
+                    </div>
+                    <div class="text-muted small mt-3">Sedang diproses</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3" style="--i: 5">
+            <div class="card stat-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-icon bg-success bg-opacity-10">
+                            <i class="bi bi-check2-circle text-success"></i>
                         </div>
                         <div class="text-end">
                             <div class="text-muted small">Order Selesai</div>
@@ -112,7 +129,7 @@
 
     <div class="row g-4" style="--i: 5">
         <div class="col-12 col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
+            <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white border-0 py-3">
                     <h5 class="mb-0">Ringkasan Status Order</h5>
                 </div>
@@ -131,6 +148,39 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Aktivitas Pelanggan</h5>
+                    <span class="text-muted small">Limit 5</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nama Konsumen</th>
+                                    <th style="width: 140px;" class="text-end">Total Order</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if aktivitas_pelanggan %}
+                                    {% for item in aktivitas_pelanggan %}
+                                        <tr>
+                                            <td><strong>{{ item[0] }}</strong></td>
+                                            <td class="text-end">{{ item[1] }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2" class="text-center text-muted py-4">Belum ada aktivitas</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="col-12 col-lg-8">
@@ -146,8 +196,8 @@
                                 <tr>
                                     <th style="width: 140px;">Tanggal</th>
                                     <th>Konsumen</th>
+                                    <th>Deskripsi</th>
                                     <th style="width: 140px;">Status</th>
-                                    <th style="width: 160px;" class="text-end">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -158,6 +208,7 @@
                                         <tr>
                                             <td>{{ o.tanggal_order.strftime('%d/%m/%Y') }}</td>
                                             <td><strong>{{ k.nama }}</strong></td>
+                                            <td>{{ o.deskripsi }}</td>
                                             <td>
                                                 {% if o.status == 'Selesai' %}
                                                     <span class="badge bg-success">Selesai</span>
@@ -167,12 +218,11 @@
                                                     <span class="badge bg-warning text-dark">Pending</span>
                                                 {% endif %}
                                             </td>
-                                            <td class="text-end">Rp {{ "%.2f"|format(o.jumlah * o.harga_satuan) }}</td>
                                         </tr>
                                     {% endfor %}
                                 {% else %}
                                     <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">Belum ada order.</td>
+                                        <td colspan="4" class="text-center text-muted py-4">Belum ada order</td>
                                     </tr>
                                 {% endif %}
                             </tbody>
