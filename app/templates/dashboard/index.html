@@ -8,9 +8,9 @@
         <h1 class="h2">Dashboard</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <div class="btn-group me-2">
-                <button type="button" class="btn btn-sm btn-outline-primary">Hari Ini</button>
-                <button type="button" class="btn btn-sm btn-outline-primary">Minggu Ini</button>
-                <button type="button" class="btn btn-sm btn-outline-primary">Bulan Ini</button>
+                <a href="{{ url_for('dashboard.dashboard', range='today') }}" class="btn btn-sm btn-outline-primary {% if range == 'today' %}active{% endif %}">Hari Ini</a>
+                <a href="{{ url_for('dashboard.dashboard', range='week') }}" class="btn btn-sm btn-outline-primary {% if range == 'week' %}active{% endif %}">Minggu Ini</a>
+                <a href="{{ url_for('dashboard.dashboard', range='month') }}" class="btn btn-sm btn-outline-primary {% if range == 'month' %}active{% endif %}">Bulan Ini</a>
             </div>
             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exportLaporanModal">
                 <i class="bi bi-printer"></i> Export Laporan
@@ -50,7 +50,7 @@
                         </div>
                         <div class="text-end">
                             <div class="text-muted small">Jumlah Konsumen</div>
-                            <div class="stat-value">{{ total_konsumen }}</div>
+                            <div class="stat-value" data-count="{{ total_konsumen }}">0</div>
                         </div>
                     </div>
                     <div class="text-muted small mt-3">Jumlah konsumen terdaftar</div>
@@ -67,7 +67,7 @@
                         </div>
                         <div class="text-end">
                             <div class="text-muted small">Jumlah Order</div>
-                            <div class="stat-value">{{ total_order }}</div>
+                            <div class="stat-value" data-count="{{ total_order }}">0</div>
                         </div>
                     </div>
                     <div class="text-muted small mt-3">Total order yang tercatat</div>
@@ -84,7 +84,7 @@
                         </div>
                         <div class="text-end">
                             <div class="text-muted small">Order Pending</div>
-                            <div class="stat-value">{{ status_summary['Pending'] }}</div>
+                            <div class="stat-value" data-count="{{ status_summary['Pending'] }}">0</div>
                         </div>
                     </div>
                     <div class="text-muted small mt-3">Menunggu diproses</div>
@@ -101,7 +101,7 @@
                         </div>
                         <div class="text-end">
                             <div class="text-muted small">Order Produksi</div>
-                            <div class="stat-value">{{ status_summary['Produksi'] }}</div>
+                            <div class="stat-value" data-count="{{ status_summary['Produksi'] }}">0</div>
                         </div>
                     </div>
                     <div class="text-muted small mt-3">Sedang diproses</div>
@@ -118,7 +118,7 @@
                         </div>
                         <div class="text-end">
                             <div class="text-muted small">Order Selesai</div>
-                            <div class="stat-value">{{ status_summary['Selesai'] }}</div>
+                            <div class="stat-value" data-count="{{ status_summary['Selesai'] }}">0</div>
                         </div>
                     </div>
                     <div class="text-muted small mt-3">Order selesai</div>
@@ -134,6 +134,9 @@
                     <h5 class="mb-0">Ringkasan Status Order</h5>
                 </div>
                 <div class="card-body">
+                    <div class="mb-3" style="height: 220px;">
+                        <canvas id="orderChart"></canvas>
+                    </div>
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="text-muted">Pending</div>
                         <span class="badge bg-warning text-dark">{{ status_summary['Pending'] }}</span>
@@ -300,4 +303,101 @@
         }
     }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+    (function () {
+        const root = document.querySelector('.dashboard-page');
+        if (!root) return;
+
+        const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const nodes = root.querySelectorAll('[data-count]');
+        if (!nodes.length) return;
+
+        const duration = 800;
+        const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+        nodes.forEach((el) => {
+            const target = parseInt((el.getAttribute('data-count') || '0'), 10) || 0;
+            if (prefersReduced) {
+                el.textContent = String(target);
+                return;
+            }
+
+            const start = 0;
+            const startTime = performance.now();
+
+            const tick = (now) => {
+                const elapsed = now - startTime;
+                const t = Math.min(1, elapsed / duration);
+                const eased = easeOutCubic(t);
+                const value = Math.round(start + (target - start) * eased);
+                el.textContent = String(value);
+
+                if (t < 1) {
+                    requestAnimationFrame(tick);
+                } else {
+                    el.textContent = String(target);
+                }
+            };
+
+            el.textContent = '0';
+            requestAnimationFrame(tick);
+        });
+    })();
+</script>
+
+<script>
+    (function () {
+        const canvas = document.getElementById('orderChart');
+        if (!canvas) return;
+
+        const pending = Number('{{ order_pending|default(0) }}') || 0;
+        const produksi = Number('{{ order_produksi|default(0) }}') || 0;
+        const selesai = Number('{{ order_selesai|default(0) }}') || 0;
+
+        const data = [pending, produksi, selesai];
+        const ctx = canvas.getContext('2d');
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Produksi', 'Selesai'],
+                datasets: [{
+                    data,
+                    backgroundColor: ['#fde68a', '#bfdbfe', '#bbf7d0'],
+                    borderColor: ['#f59e0b', '#2563eb', '#16a34a'],
+                    borderWidth: 1,
+                    hoverOffset: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '62%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            boxHeight: 12,
+                            color: '#111827',
+                            font: { size: 12 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                return label + ': ' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    })();
+</script>
 {% endblock %}

@@ -52,12 +52,21 @@ def create_app(config_name='development'):
     def inject_unread_notifications():
         from app.models import NotifikasiInternal
         from app.utils.inactive_customer_notification import inactive_customer_notification
-        from app.utils.notifications import count_inactive_customers, get_inactive_customers_with_last_order
+        from app.utils.notifications import (
+            count_inactive_7_days_customers,
+            count_never_order_customers,
+            get_inactive_7_days_customers,
+            get_never_order_customers,
+        )
 
         inactive_customer_notification()
 
-        inactive_customers = get_inactive_customers_with_last_order(days=7, limit=20)
-        inactive_customers_count = int(count_inactive_customers(days=7) or 0)
+        inactive_7_days = get_inactive_7_days_customers(days=7, limit=5)
+        never_order = get_never_order_customers(limit=5)
+
+        inactive_7_days_count = int(count_inactive_7_days_customers(days=7) or 0)
+        never_order_count = int(count_never_order_customers() or 0)
+        total_notifikasi = int((inactive_7_days_count + never_order_count) or 0)
 
         unread_notifications = (
             NotifikasiInternal.query.filter_by(is_read=False)
@@ -75,8 +84,11 @@ def create_app(config_name='development'):
             'unread_notifications': unread_notifications,
             'unread_notifications_count': unread_notifications_count,
             'latest_unread_notification': latest_unread_notification,
-            'inactive_customers': inactive_customers,
-            'inactive_customers_count': inactive_customers_count,
+            'inactive_7_days': inactive_7_days,
+            'never_order': never_order,
+            'inactive_7_days_count': inactive_7_days_count,
+            'never_order_count': never_order_count,
+            'total_notifikasi': total_notifikasi,
         }
     
     return app

@@ -99,3 +99,101 @@ def count_inactive_customers(days=7):
         .scalar()
         or 0
     )
+
+
+def get_inactive_7_days_customers(days=7, limit=5):
+    """Kategori 1: konsumen yang sudah pernah order, tapi terakhir order < cutoff."""
+    setting = AppSetting.query.filter_by(key='inactive_customer_7_days').first()
+    if not setting or not bool(setting.value):
+        return []
+
+    cutoff = date.today() - timedelta(days=int(days))
+
+    last_order_sq = (
+        db.session.query(
+            Order.konsumen_id.label('konsumen_id'),
+            func.max(Order.tanggal_order).label('last_order'),
+        )
+        .group_by(Order.konsumen_id)
+        .subquery()
+    )
+
+    query = (
+        db.session.query(Konsumen.nama, last_order_sq.c.last_order)
+        .join(last_order_sq, last_order_sq.c.konsumen_id == Konsumen.id)
+        .filter(last_order_sq.c.last_order < cutoff)
+        .order_by(last_order_sq.c.last_order.desc())
+    )
+
+    if limit is not None:
+        query = query.limit(int(limit))
+
+    return query.all()
+
+
+def count_inactive_7_days_customers(days=7):
+    setting = AppSetting.query.filter_by(key='inactive_customer_7_days').first()
+    if not setting or not bool(setting.value):
+        return 0
+
+    cutoff = date.today() - timedelta(days=int(days))
+
+    last_order_sq = (
+        db.session.query(
+            Order.konsumen_id.label('konsumen_id'),
+            func.max(Order.tanggal_order).label('last_order'),
+        )
+        .group_by(Order.konsumen_id)
+        .subquery()
+    )
+
+    return (
+        db.session.query(func.count(Konsumen.id))
+        .join(last_order_sq, last_order_sq.c.konsumen_id == Konsumen.id)
+        .filter(last_order_sq.c.last_order < cutoff)
+        .scalar()
+        or 0
+    )
+
+
+def get_never_order_customers(limit=5):
+    """Kategori 2: konsumen yang belum pernah order."""
+    last_order_sq = (
+        db.session.query(
+            Order.konsumen_id.label('konsumen_id'),
+            func.max(Order.tanggal_order).label('last_order'),
+        )
+        .group_by(Order.konsumen_id)
+        .subquery()
+    )
+
+    query = (
+        db.session.query(Konsumen.nama, last_order_sq.c.last_order)
+        .outerjoin(last_order_sq, last_order_sq.c.konsumen_id == Konsumen.id)
+        .filter(last_order_sq.c.last_order.is_(None))
+        .order_by(Konsumen.created_at.desc())
+    )
+
+    if limit is not None:
+        query = query.limit(int(limit))
+
+    return query.all()
+
+
+def count_never_order_customers():
+    last_order_sq = (
+        db.session.query(
+            Order.konsumen_id.label('konsumen_id'),
+            func.max(Order.tanggal_order).label('last_order'),
+        )
+        .group_by(Order.konsumen_id)
+        .subquery()
+    )
+
+    return (
+        db.session.query(func.count(Konsumen.id))
+        .outerjoin(last_order_sq, last_order_sq.c.konsumen_id == Konsumen.id)
+        .filter(last_order_sq.c.last_order.is_(None))
+        .scalar()
+        or 0
+    )

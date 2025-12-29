@@ -378,11 +378,11 @@
                 <div class="container-fluid">
                     <div class="d-flex justify-content-end mb-3">
                         <div class="notif-wrapper position-relative">
-                            <button type="button" class="notif-bell-btn position-relative" id="notifBellBtn" aria-haspopup="true" aria-expanded="false">
+                            <button type="button" class="notif-bell-btn position-relative {% if total_notifikasi and total_notifikasi > 0 %}has-notif{% endif %}" id="notifBellBtn" aria-haspopup="true" aria-expanded="false">
                                 <i class="bi bi-bell"></i>
-                                {% if inactive_customers_count and inactive_customers_count > 0 %}
+                                {% if total_notifikasi and total_notifikasi > 0 %}
                                     <span class="notif-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                        {{ inactive_customers_count }}
+                                        {{ total_notifikasi }}
                                     </span>
                                 {% endif %}
                             </button>
@@ -390,33 +390,47 @@
                             <div class="notif-dropdown shadow-sm" id="notifDropdown" hidden>
                                 <div class="notif-dropdown-header d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
                                     <div class="fw-semibold">Notifikasi</div>
-                                    <div class="text-muted small">Konsumen tidak order ≥ 7 hari</div>
+                                    <a class="small text-decoration-none" href="/kelola-notifikasi">Lihat Semua</a>
                                 </div>
                                 <div class="notif-dropdown-body p-2">
-                                    {% if inactive_customers and inactive_customers|length > 0 %}
-                                        <div class="notif-list">
-                                            {% for item in inactive_customers %}
+                                    <div class="notif-category px-2 pt-2">
+                                        <div class="notif-category-title notif-cat-warn">Konsumen tidak order ≥ 7 hari</div>
+                                        <span class="notif-category-badge notif-cat-warn">{{ inactive_7_days_count or 0 }}</span>
+                                    </div>
+                                    {% if inactive_7_days and inactive_7_days|length > 0 %}
+                                        <div class="notif-list p-2">
+                                            {% for item in inactive_7_days %}
                                                 <div class="notif-card">
                                                     <div class="notif-avatar" aria-hidden="true">{{ (item[0] or '?')[:1]|upper }}</div>
                                                     <div class="notif-content">
                                                         <div class="notif-title">{{ item[0] }}</div>
-                                                        <div class="notif-subtitle">
-                                                            {% if item[1] %}
-                                                                Terakhir order: {{ item[1].strftime('%d/%m/%Y') }}
-                                                            {% else %}
-                                                                Belum pernah order
-                                                            {% endif %}
-                                                        </div>
+                                                        <div class="notif-subtitle">Terakhir order: {{ item[1].strftime('%d/%m/%Y') }}</div>
                                                     </div>
                                                 </div>
                                             {% endfor %}
                                         </div>
                                     {% else %}
-                                        <div class="notif-empty text-center">
-                                            <div class="notif-empty-icon"><i class="bi bi-check2-circle"></i></div>
-                                            <div class="fw-semibold">Aman</div>
-                                            <div class="text-muted small">Tidak ada konsumen yang melewati batas 7 hari tanpa order.</div>
+                                        <div class="px-2 pb-2 text-muted small">Tidak ada data.</div>
+                                    {% endif %}
+
+                                    <div class="notif-category px-2 pt-2 border-top">
+                                        <div class="notif-category-title notif-cat-info">Konsumen belum pernah order</div>
+                                        <span class="notif-category-badge notif-cat-info">{{ never_order_count or 0 }}</span>
+                                    </div>
+                                    {% if never_order and never_order|length > 0 %}
+                                        <div class="notif-list p-2">
+                                            {% for item in never_order %}
+                                                <div class="notif-card">
+                                                    <div class="notif-avatar" aria-hidden="true">{{ (item[0] or '?')[:1]|upper }}</div>
+                                                    <div class="notif-content">
+                                                        <div class="notif-title">{{ item[0] }}</div>
+                                                        <div class="notif-subtitle">Belum pernah order</div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
                                         </div>
+                                    {% else %}
+                                        <div class="px-2 pb-2 text-muted small">Tidak ada data.</div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -444,6 +458,36 @@
             transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
         }
 
+        @keyframes notifBadgePulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+            60% {
+                transform: translate(-50%, -50%) scale(1.12);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes notifBellWiggle {
+            0% { transform: rotate(0deg); }
+            20% { transform: rotate(-8deg); }
+            40% { transform: rotate(8deg); }
+            60% { transform: rotate(-6deg); }
+            80% { transform: rotate(6deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .notif-bell-btn.has-notif .notif-badge {
+            animation: notifBadgePulse 1.6s ease-in-out infinite;
+        }
+
+        .notif-bell-btn.has-notif i {
+            transform-origin: 50% 20%;
+            animation: notifBellWiggle 1.9s ease-in-out infinite;
+        }
+
         .notif-bell-btn:hover {
             transform: translateY(-1px);
             box-shadow: var(--shadow-md);
@@ -468,12 +512,26 @@
             border-radius: 0.75rem;
             z-index: 1050;
             transform: translateY(-6px) scale(0.98);
-            transition: transform 160ms ease, width 160ms ease;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 160ms ease, transform 160ms ease, width 160ms ease;
         }
 
         .notif-dropdown.notif-open {
             width: 440px;
             transform: translateY(0) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .notif-bell-btn.has-notif .notif-badge,
+            .notif-bell-btn.has-notif i {
+                animation: none;
+            }
+            .notif-dropdown {
+                transition: none;
+            }
         }
 
         .notif-dropdown-body {
@@ -484,6 +542,51 @@
         .notif-list {
             display: grid;
             gap: 10px;
+        }
+
+        .notif-category {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .notif-category-title {
+            font-weight: 700;
+            font-size: 0.86rem;
+        }
+
+        .notif-category-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 26px;
+            height: 22px;
+            padding: 0 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+        }
+
+        .notif-cat-warn {
+            color: #92400e;
+        }
+
+        .notif-category-badge.notif-cat-warn {
+            background: #fffbeb;
+            border-color: #fde68a;
+        }
+
+        .notif-cat-info {
+            color: #1d4ed8;
+        }
+
+        .notif-category-badge.notif-cat-info {
+            background: #eff6ff;
+            border-color: #bfdbfe;
         }
 
         .notif-card {
@@ -500,7 +603,7 @@
 
         .notif-card:hover {
             background: var(--hover-soft);
-            transform: translateY(-1px);
+            transform: translateX(4px);
             box-shadow: var(--shadow-sm);
         }
 
