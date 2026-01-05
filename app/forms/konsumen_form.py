@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms.validators import DataRequired, Email, Length, Optional, Regexp
 
 
 class KonsumenForm(FlaskForm):
@@ -23,6 +23,10 @@ class KonsumenForm(FlaskForm):
         'No Telepon',
         validators=[
             Optional(),
+            Regexp(
+                r'^[0-9+()\-\s]*$',
+                message='No Telepon hanya boleh berisi angka dan karakter +() -',
+            ),
             Length(max=20, message='No Telepon maksimal 20 karakter'),
         ],
         render_kw={'class': 'form-control', 'placeholder': 'Masukkan nomor telepon'},
@@ -32,6 +36,7 @@ class KonsumenForm(FlaskForm):
         'Email',
         validators=[
             Optional(),
+            Email(message='Format email tidak valid'),
             Length(max=100, message='Email maksimal 100 karakter'),
         ],
         render_kw={'class': 'form-control', 'placeholder': 'Masukkan email', 'type': 'email'},

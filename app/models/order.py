@@ -8,6 +8,7 @@ class Order(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     konsumen_id = db.Column(db.Integer, db.ForeignKey('konsumen.id'), nullable=False)
+    barang_id = db.Column(db.Integer, db.ForeignKey('barang.id'), nullable=True) # Initially nullable for migration, but logic should enforce it
     tanggal_order = db.Column(db.DateTime, nullable=False)
     deskripsi = db.Column(db.String(255), nullable=False)
     jumlah = db.Column(db.Integer, nullable=False)

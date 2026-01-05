@@ -7,9 +7,39 @@
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-box-seam"></i> Daftar Barang</h2>
-            <a href="{{ url_for('barang.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Tambah Barang
-            </a>
+            <div>
+                <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#importModal">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Import CSV
+                </button>
+                <a href="{{ url_for('barang.create') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Tambah Barang
+                </a>
+            </div>
+        </div>
+
+        <!-- Import Modal -->
+        <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{{ url_for('barang.import_csv') }}" method="POST" enctype="multipart/form-data">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="importModalLabel">Import Data Barang</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="file" class="form-label">Pilih File CSV</label>
+                                <input class="form-control" type="file" id="file" name="file" accept=".csv" required>
+                                <div class="form-text">Format CSV: kode, nama, satuan, stok, harga_beli</div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Import</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <!-- Search Form -->
@@ -17,11 +47,8 @@
             <div class="card-body">
                 <form method="GET" action="{{ url_for('barang.index') }}" class="row g-3">
                     <div class="col-md-10">
-                        <input type="text" 
-                               class="form-control" 
-                               name="search" 
-                               placeholder="Cari barang (kode atau nama)..." 
-                               value="{{ search }}">
+                        <input type="text" class="form-control" name="search"
+                            placeholder="Cari barang (kode atau nama)..." value="{{ search }}">
                     </div>
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-outline-primary w-100">
@@ -57,18 +84,14 @@
                                 <td>{{ barang.satuan }}</td>
                                 <td>Rp {{ "{:,.2f}".format(float(barang.harga_beli)) }}</td>
                                 <td>
-                                    <a href="{{ url_for('barang.edit', id=barang.id) }}" 
-                                       class="btn btn-sm btn-warning" 
-                                       title="Edit">
+                                    <a href="{{ url_for('barang.edit', id=barang.id) }}" class="btn btn-sm btn-warning"
+                                        title="Edit">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <form method="POST" 
-                                          action="{{ url_for('barang.delete', id=barang.id) }}" 
-                                          class="d-inline"
-                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus barang ini?');">
-                                        <button type="submit" 
-                                                class="btn btn-sm btn-danger" 
-                                                title="Hapus">
+                                    <form method="POST" action="{{ url_for('barang.delete', id=barang.id) }}"
+                                        class="d-inline"
+                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus barang ini?');">
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -85,7 +108,8 @@
                     <ul class="pagination justify-content-center">
                         {% if barangs.has_prev %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('barang.index', page=barangs.prev_num, search=search) }}">
+                            <a class="page-link"
+                                href="{{ url_for('barang.index', page=barangs.prev_num, search=search) }}">
                                 <i class="bi bi-chevron-left"></i> Sebelumnya
                             </a>
                         </li>
@@ -95,29 +119,31 @@
                         </li>
                         {% endif %}
 
-                        {% for page_num in barangs.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-                            {% if page_num %}
-                                {% if page_num == barangs.page %}
-                                <li class="page-item active">
-                                    <span class="page-link">{{ page_num }}</span>
-                                </li>
-                                {% else %}
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ url_for('barang.index', page=page_num, search=search) }}">
-                                        {{ page_num }}
-                                    </a>
-                                </li>
-                                {% endif %}
-                            {% else %}
-                                <li class="page-item disabled">
-                                    <span class="page-link">...</span>
-                                </li>
-                            {% endif %}
+                        {% for page_num in barangs.iter_pages(left_edge=1, right_edge=1, left_current=2,
+                        right_current=2) %}
+                        {% if page_num %}
+                        {% if page_num == barangs.page %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('barang.index', page=page_num, search=search) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
                         {% endfor %}
 
                         {% if barangs.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('barang.index', page=barangs.next_num, search=search) }}">
+                            <a class="page-link"
+                                href="{{ url_for('barang.index', page=barangs.next_num, search=search) }}">
                                 Selanjutnya <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>
@@ -144,4 +170,3 @@
     </div>
 </div>
 {% endblock %}
-

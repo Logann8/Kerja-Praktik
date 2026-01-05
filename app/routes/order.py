@@ -1,6 +1,8 @@
 from datetime import datetime
+import csv
+import io
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for, Response
 
 from app import db
 from app.forms.order_form import OrderForm
@@ -13,6 +15,9 @@ bp = Blueprint('order', __name__)
 @bp.route('/create', methods=['POST'])
 def create():
     form = OrderForm()
+    # Populate choices for barang_id
+    from app.models import Barang
+    form.barang_id.choices = [(b.id, f"{b.kode} - {b.nama} (Stok: {b.stok})") for b in Barang.query.all()]
 
     try:
         print('[ORDER.CREATE] called')
@@ -24,11 +29,16 @@ def create():
     if form.validate_on_submit():
         tanggal = form.tanggal_order.data
         tanggal_dt = datetime.combine(tanggal, datetime.min.time())
+        
+        # Get selected barang for description
+        barang = Barang.query.get(form.barang_id.data)
+        deskripsi_barang = f"{barang.kode} - {barang.nama}" if barang else "Item Unknown"
 
         order = Order(
             konsumen_id=int(form.konsumen_id.data),
+            barang_id=int(form.barang_id.data),
             tanggal_order=tanggal_dt,
-            deskripsi=form.deskripsi.data.strip(),
+            deskripsi=deskripsi_barang, # Use proper Item Name
             jumlah=int(form.jumlah.data),
             harga_satuan=form.harga_satuan.data,
             status=form.status.data or 'Pending',
@@ -171,3 +181,63 @@ def update_status_ajax(order_id):
         return konsumen(order.konsumen_id), 500
 
     return konsumen(order.konsumen_id)
+
+
+@bp.route('/export', methods=['GET'])
+def export_csv():
+    """Export data penjualan ke CSV"""
+    # Import needed models locally to avoid circular imports if any
+    from app.models import Barang, Konsumen
+    
+    # Query all orders joined with Konsumen and Barang
+    # Note: If relationships are not explicitly defined, we might need explicit joins
+    # or just iterate. For simplicity and safety given current knowledge, we iterate.
+    orders = Order.query.order_by(Order.tanggal_order.desc()).all()
+    
+    # Prepare CSV output
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Header
+    writer.writerow([
+        'ID Order', 'Tanggal', 'Nama Konsumen', 'Kode Barang', 'Nama Barang', 
+        'Jumlah', 'Harga Satuan', 'Total', 'Status', 'Deskripsi'
+    ])
+    
+    for order in orders:
+        # Fetch related data if not available via relationship
+        # Safely get konsumen
+        konsumen_nama = "Unknown"
+        if order.konsumen_id:
+            k = Konsumen.query.get(order.konsumen_id)
+            if k: konsumen_nama = k.nama
+            
+        # Safely get barang
+        barang_kode = "-"
+        barang_nama = "-"
+        if order.barang_id:
+            b = Barang.query.get(order.barang_id)
+            if b: 
+                barang_kode = b.kode
+                barang_nama = b.nama
+        
+        writer.writerow([
+            order.id,
+            order.tanggal_order.strftime('%Y-%m-%d'),
+            konsumen_nama,
+            barang_kode,
+            barang_nama,
+            order.jumlah,
+            order.harga_satuan,
+            order.jumlah * order.harga_satuan,
+            order.status,
+            order.deskripsi
+        ])
+        
+    output.seek(0)
+    
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment;filename=CSV_Data_Penjualan.csv"}
+    )

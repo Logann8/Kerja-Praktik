@@ -12,14 +12,15 @@ class OrderForm(FlaskForm):
         render_kw={'class': 'form-control', 'type': 'date'},
     )
 
-    deskripsi = StringField(
-        'Nama Barang / Deskripsi',
-        validators=[
-            DataRequired(message='Nama Barang / Deskripsi wajib diisi'),
-            Length(max=255, message='Deskripsi maksimal 255 karakter'),
-        ],
-        render_kw={'class': 'form-control', 'placeholder': 'Masukkan nama barang / deskripsi'},
+    barang_id = SelectField(
+        'Nama Barang',
+        coerce=int,
+        validators=[DataRequired(message='Barang wajib dipilih')],
+        render_kw={'class': 'form-select', 'id': 'order_barang_id'},
     )
+
+    # Deskripsi disimpan untuk backward compatibility atau catatan tambahan
+    deskripsi = HiddenField('Deskripsi')
 
     jumlah = IntegerField(
         'Jumlah',
@@ -27,7 +28,7 @@ class OrderForm(FlaskForm):
             DataRequired(message='Jumlah wajib diisi'),
             NumberRange(min=1, message='Jumlah minimal 1'),
         ],
-        render_kw={'class': 'form-control', 'min': 1, 'step': 1},
+        render_kw={'class': 'form-control', 'min': 1, 'step': 1, 'readonly': True, 'id': 'order_jumlah'},
     )
 
     harga_satuan = DecimalField(
@@ -37,7 +38,7 @@ class OrderForm(FlaskForm):
             DataRequired(message='Harga Satuan wajib diisi'),
             NumberRange(min=0, message='Harga Satuan tidak boleh negatif'),
         ],
-        render_kw={'class': 'form-control', 'min': 0, 'step': '0.01'},
+        render_kw={'class': 'form-control', 'min': 0, 'step': '0.01', 'id': 'order_harga_satuan'},
     )
 
     status = SelectField(

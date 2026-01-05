@@ -25,10 +25,11 @@ def create_app(config_name='development'):
     db.init_app(app)
     
     # Register blueprints
-    from app.routes import laporan, dashboard, konsumen, order
+    from app.routes import laporan, dashboard, konsumen, order, barang
     
     app.register_blueprint(konsumen.bp, url_prefix='/konsumen')
     app.register_blueprint(order.bp, url_prefix='/order')
+    app.register_blueprint(barang.bp, url_prefix='/barang')
     app.register_blueprint(laporan.bp)
     app.register_blueprint(dashboard.dashboard_bp)
     
@@ -36,7 +37,7 @@ def create_app(config_name='development'):
     @app.route('/')
     def index():
         from flask import redirect, url_for
-        return redirect(url_for('konsumen.index'))
+        return redirect(url_for('dashboard.dashboard'))
     
     # Create database tables
     with app.app_context():

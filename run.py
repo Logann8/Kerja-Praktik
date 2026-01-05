@@ -1,8 +1,9 @@
 import os
 from app import create_app
 
-# Ambil environment dari variabel environment atau default ke 'development'
-config_name = os.environ.get('FLASK_ENV', 'development')
+# Ambil konfigurasi dari environment.
+# Default dibuat aman untuk running lokal (SQLite) tanpa perlu MySQL.
+config_name = os.environ.get('FLASK_CONFIG') or os.environ.get('FLASK_ENV') or 'default'
 
 # Buat aplikasi menggunakan app factory
 app = create_app(config_name)

@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, time
 from sqlalchemy import case, func, literal
 
 from app import db
+from app.forms.notifikasi_form import NotifikasiSettingForm
 from app.models import Konsumen, Order, Setting
 
 
@@ -90,11 +91,14 @@ def kelola_notifikasi():
         db.session.add(setting)
         db.session.commit()
 
+    form = NotifikasiSettingForm()
+    form.inactive_customer_7_days.data = bool(setting.value)
+
     if request.method == 'POST':
-        is_active = request.form.get('inactive_customer_7_days') == 'on'
-        setting.value = bool(is_active)
-        db.session.commit()
-        return redirect(url_for('dashboard.kelola_notifikasi'))
+        if form.validate_on_submit():
+            setting.value = bool(form.inactive_customer_7_days.data)
+            db.session.commit()
+            return redirect(url_for('dashboard.kelola_notifikasi'))
 
     tab = (request.args.get('tab', 'all') or 'all').strip().lower()
     if tab not in ('all', 'inactive', 'never'):
@@ -163,6 +167,7 @@ def kelola_notifikasi():
 
     return render_template(
         'notifikasi/index.html',
+        form=form,
         inactive_customer_7_days=bool(setting.value),
         tab=tab,
         notif_rows=notif_rows,

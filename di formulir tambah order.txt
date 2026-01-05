@@ -1,0 +1,14 @@
+di formulir tambah order
+input order manual
+input nama barang diperoleh dari hasil aplikasi wildan, 
+input jumlah diperoleh dari wildan
+input harga satuan
+
+---
+tambahkan formulir data barang yang diisi melalui import stok_barang.csv
+crm 
+
+costumer 
+input dta transaksi
+impor
+ekspor

@@ -7,12 +7,19 @@
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-people"></i> Daftar Konsumen</h2>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahKonsumenModal">
-                <i class="bi bi-plus-circle"></i> Tambah Konsumen
-            </button>
+            <div>
+                <a href="{{ url_for('order.export_csv') }}" class="btn btn-success me-2">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Export Penjualan
+                </a>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#tambahKonsumenModal">
+                    <i class="bi bi-plus-circle"></i> Tambah Konsumen
+                </button>
+            </div>
         </div>
 
-        <div class="modal fade" id="tambahKonsumenModal" tabindex="-1" aria-labelledby="tambahKonsumenModalLabel" aria-hidden="true">
+        <div class="modal fade" id="tambahKonsumenModal" tabindex="-1" aria-labelledby="tambahKonsumenModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <form method="POST" action="{{ url_for('konsumen.create') }}">
@@ -60,7 +67,8 @@
             </div>
         </div>
 
-        <div class="modal fade" id="tambahOrderModal" tabindex="-1" aria-labelledby="tambahOrderModalLabel" aria-hidden="true">
+        <div class="modal fade" id="tambahOrderModal" tabindex="-1" aria-labelledby="tambahOrderModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <form method="POST" action="{{ url_for('order.create') }}">
@@ -91,8 +99,8 @@
                                 </div>
 
                                 <div class="col-12">
-                                    {{ order_form.deskripsi.label(class='form-label') }}
-                                    {{ order_form.deskripsi(id='order_deskripsi') }}
+                                    {{ order_form.barang_id.label(class='form-label') }}
+                                    {{ order_form.barang_id(class='form-select', id='order_barang_id') }}
                                 </div>
 
                                 <div class="col-md-6">
@@ -117,7 +125,8 @@
             </div>
         </div>
 
-        <div class="modal fade" id="hapusKonsumenModal" tabindex="-1" aria-labelledby="hapusKonsumenModalLabel" aria-hidden="true">
+        <div class="modal fade" id="hapusKonsumenModal" tabindex="-1" aria-labelledby="hapusKonsumenModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <form method="POST" action="">
@@ -141,7 +150,8 @@
             </div>
         </div>
 
-        <div class="modal fade" id="editKonsumenModal" tabindex="-1" aria-labelledby="editKonsumenModalLabel" aria-hidden="true">
+        <div class="modal fade" id="editKonsumenModal" tabindex="-1" aria-labelledby="editKonsumenModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <form method="POST" action="">
@@ -158,7 +168,8 @@
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label for="edit_nama" class="form-label">Nama Konsumen</label>
-                                    <input type="text" class="form-control" id="edit_nama" name="nama" required maxlength="100">
+                                    <input type="text" class="form-control" id="edit_nama" name="nama" required
+                                        maxlength="100">
                                 </div>
 
                                 <div class="col-12">
@@ -168,12 +179,14 @@
 
                                 <div class="col-md-6">
                                     <label for="edit_telepon" class="form-label">No Telepon</label>
-                                    <input type="text" class="form-control" id="edit_telepon" name="telepon" maxlength="20">
+                                    <input type="text" class="form-control" id="edit_telepon" name="telepon"
+                                        maxlength="20">
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="edit_email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="edit_email" name="email" maxlength="100">
+                                    <input type="email" class="form-control" id="edit_email" name="email"
+                                        maxlength="100">
                                 </div>
                             </div>
                         </div>
@@ -189,7 +202,8 @@
             </div>
         </div>
 
-        <div class="modal fade" id="detailOrderModal" tabindex="-1" aria-labelledby="detailOrderModalLabel" aria-hidden="true">
+        <div class="modal fade" id="detailOrderModal" tabindex="-1" aria-labelledby="detailOrderModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -209,7 +223,8 @@
             </div>
         </div>
 
-        <div class="modal fade" id="ubahStatusOrderModal" tabindex="-1" aria-labelledby="ubahStatusOrderModalLabel" aria-hidden="true">
+        <div class="modal fade" id="ubahStatusOrderModal" tabindex="-1" aria-labelledby="ubahStatusOrderModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <form id="ubahStatusOrderForm" method="POST" action="">
@@ -253,18 +268,17 @@
             <div class="card-body">
                 <form method="GET" action="{{ url_for('konsumen.index') }}" class="row g-3 align-items-end">
                     <div class="col-md-8">
-                        <input type="text"
-                               class="form-control"
-                               name="q"
-                               placeholder="Cari konsumen (nama / no HP / email)"
-                               value="{{ q }}">
+                        <input type="text" class="form-control" name="q"
+                            placeholder="Cari konsumen (nama / no HP / email)" value="{{ q }}">
                     </div>
                     <div class="col-md-4">
                         <label for="filter_konsumen" class="form-label">Filter</label>
                         <select class="form-select" id="filter_konsumen" name="filter" onchange="this.form.submit()">
                             <option value="" {% if not filter %}selected{% endif %}>Semua</option>
-                            <option value="memiliki_order" {% if filter == 'memiliki_order' %}selected{% endif %}>Memiliki Order</option>
-                            <option value="belum_order" {% if filter == 'belum_order' %}selected{% endif %}>Belum Pernah Order</option>
+                            <option value="memiliki_order" {% if filter=='memiliki_order' %}selected{% endif %}>Memiliki
+                                Order</option>
+                            <option value="belum_order" {% if filter=='belum_order' %}selected{% endif %}>Belum Pernah
+                                Order</option>
                         </select>
                     </div>
                 </form>
@@ -295,49 +309,31 @@
                                 <td>{{ k.telepon or '-' }}</td>
                                 <td>{{ k.email or '-' }}</td>
                                 <td>
-                                    <button type="button"
-                                            class="btn btn-sm btn-primary"
-                                            title="Tambah Order"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#tambahOrderModal"
-                                            data-konsumen-id="{{ k.id }}"
-                                            data-konsumen-nama="{{ k.nama|e }}">
+                                    <button type="button" class="btn btn-sm btn-primary" title="Tambah Order"
+                                        data-bs-toggle="modal" data-bs-target="#tambahOrderModal"
+                                        data-konsumen-id="{{ k.id }}" data-konsumen-nama="{{ k.nama|e }}">
                                         <i class="bi bi-bag-plus"></i>
                                     </button>
-                                    <a class="btn btn-sm btn-outline-primary"
-                                       title="Histori Order"
-                                       href="{{ url_for('konsumen.orders', id=k.id) }}">
+                                    <a class="btn btn-sm btn-outline-primary" title="Histori Order"
+                                        href="{{ url_for('konsumen.orders', id=k.id) }}">
                                         <i class="bi bi-receipt"></i>
                                     </a>
-                                    <button type="button"
-                                            class="btn btn-sm btn-outline-secondary"
-                                            title="Detail Order"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#detailOrderModal"
-                                            data-konsumen-id="{{ k.id }}"
-                                            data-konsumen-nama="{{ k.nama|e }}">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" title="Detail Order"
+                                        data-bs-toggle="modal" data-bs-target="#detailOrderModal"
+                                        data-konsumen-id="{{ k.id }}" data-konsumen-nama="{{ k.nama|e }}">
                                         <i class="bi bi-eye"></i>
                                     </button>
-                                    <button type="button"
-                                            class="btn btn-sm btn-warning"
-                                            title="Edit"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#editKonsumenModal"
-                                            data-id="{{ k.id }}"
-                                            data-nama="{{ k.nama|e }}"
-                                            data-alamat="{{ (k.alamat or '')|e }}"
-                                            data-telepon="{{ (k.telepon or '')|e }}"
-                                            data-email="{{ (k.email or '')|e }}"
-                                            data-action="{{ url_for('konsumen.update', id=k.id) }}">
+                                    <button type="button" class="btn btn-sm btn-warning" title="Edit"
+                                        data-bs-toggle="modal" data-bs-target="#editKonsumenModal" data-id="{{ k.id }}"
+                                        data-nama="{{ k.nama|e }}" data-alamat="{{ (k.alamat or '')|e }}"
+                                        data-telepon="{{ (k.telepon or '')|e }}" data-email="{{ (k.email or '')|e }}"
+                                        data-action="{{ url_for('konsumen.update', id=k.id) }}">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    <button type="button"
-                                            class="btn btn-sm btn-danger"
-                                            title="Hapus"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#hapusKonsumenModal"
-                                            data-nama="{{ k.nama|e }}"
-                                            data-action="{{ url_for('konsumen.delete', id=k.id) }}">
+                                    <button type="button" class="btn btn-sm btn-danger" title="Hapus"
+                                        data-bs-toggle="modal" data-bs-target="#hapusKonsumenModal"
+                                        data-nama="{{ k.nama|e }}"
+                                        data-action="{{ url_for('konsumen.delete', id=k.id) }}">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </td>
@@ -352,7 +348,8 @@
                     <ul class="pagination justify-content-center">
                         {% if konsumen.has_prev %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('konsumen.index', page=konsumen.prev_num, q=q, filter=filter) }}">
+                            <a class="page-link"
+                                href="{{ url_for('konsumen.index', page=konsumen.prev_num, q=q, filter=filter) }}">
                                 <i class="bi bi-chevron-left"></i> Sebelumnya
                             </a>
                         </li>
@@ -362,29 +359,32 @@
                         </li>
                         {% endif %}
 
-                        {% for page_num in konsumen.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-                            {% if page_num %}
-                                {% if page_num == konsumen.page %}
-                                <li class="page-item active">
-                                    <span class="page-link">{{ page_num }}</span>
-                                </li>
-                                {% else %}
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ url_for('konsumen.index', page=page_num, q=q, filter=filter) }}">
-                                        {{ page_num }}
-                                    </a>
-                                </li>
-                                {% endif %}
-                            {% else %}
-                            <li class="page-item disabled">
-                                <span class="page-link">...</span>
-                            </li>
-                            {% endif %}
+                        {% for page_num in konsumen.iter_pages(left_edge=1, right_edge=1, left_current=2,
+                        right_current=2) %}
+                        {% if page_num %}
+                        {% if page_num == konsumen.page %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="{{ url_for('konsumen.index', page=page_num, q=q, filter=filter) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
                         {% endfor %}
 
                         {% if konsumen.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ url_for('konsumen.index', page=konsumen.next_num, q=q, filter=filter) }}">
+                            <a class="page-link"
+                                href="{{ url_for('konsumen.index', page=konsumen.next_num, q=q, filter=filter) }}">
                                 Selanjutnya <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>
@@ -403,7 +403,8 @@
                 {% else %}
                 <div class="alert alert-info text-center">
                     <i class="bi bi-info-circle"></i> Tidak ada data konsumen.
-                    <button type="button" class="btn btn-link alert-link p-0" data-bs-toggle="modal" data-bs-target="#tambahKonsumenModal">Tambah konsumen baru</button>
+                    <button type="button" class="btn btn-link alert-link p-0" data-bs-toggle="modal"
+                        data-bs-target="#tambahKonsumenModal">Tambah konsumen baru</button>
                 </div>
                 {% endif %}
             </div>
@@ -414,80 +415,109 @@
 
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const modal = document.getElementById('editKonsumenModal');
-    if (!modal) return;
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('editKonsumenModal');
+        if (!modal) return;
 
-    modal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        if (!button) return;
-
-        const form = modal.querySelector('form');
-        const nama = button.getAttribute('data-nama') || '';
-        const alamat = button.getAttribute('data-alamat') || '';
-        const telepon = button.getAttribute('data-telepon') || '';
-        const email = button.getAttribute('data-email') || '';
-        const action = button.getAttribute('data-action') || '';
-
-        if (form && action) form.setAttribute('action', action);
-
-        const inputNama = modal.querySelector('#edit_nama');
-        const inputAlamat = modal.querySelector('#edit_alamat');
-        const inputTelepon = modal.querySelector('#edit_telepon');
-        const inputEmail = modal.querySelector('#edit_email');
-
-        if (inputNama) inputNama.value = nama;
-        if (inputAlamat) inputAlamat.value = alamat;
-        if (inputTelepon) inputTelepon.value = telepon;
-        if (inputEmail) inputEmail.value = email;
-    });
-
-    const hapusModal = document.getElementById('hapusKonsumenModal');
-    if (hapusModal) {
-        hapusModal.addEventListener('show.bs.modal', function (event) {
+        modal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
             if (!button) return;
 
-            const form = hapusModal.querySelector('form');
+            const form = modal.querySelector('form');
             const nama = button.getAttribute('data-nama') || '';
+            const alamat = button.getAttribute('data-alamat') || '';
+            const telepon = button.getAttribute('data-telepon') || '';
+            const email = button.getAttribute('data-email') || '';
             const action = button.getAttribute('data-action') || '';
 
             if (form && action) form.setAttribute('action', action);
 
-            const namaEl = hapusModal.querySelector('#hapusKonsumenNama');
-            if (namaEl) namaEl.textContent = nama;
+            const inputNama = modal.querySelector('#edit_nama');
+            const inputAlamat = modal.querySelector('#edit_alamat');
+            const inputTelepon = modal.querySelector('#edit_telepon');
+            const inputEmail = modal.querySelector('#edit_email');
+
+            if (inputNama) inputNama.value = nama;
+            if (inputAlamat) inputAlamat.value = alamat;
+            if (inputTelepon) inputTelepon.value = telepon;
+            if (inputEmail) inputEmail.value = email;
         });
-    }
 
-    const orderModal = document.getElementById('tambahOrderModal');
-    if (orderModal) {
-        const setOrderKonsumen = (buttonEl) => {
-            if (!buttonEl) return;
+        const hapusModal = document.getElementById('hapusKonsumenModal');
+        if (hapusModal) {
+            hapusModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                if (!button) return;
 
-            const konsumenId = buttonEl.getAttribute('data-konsumen-id') || '';
-            const konsumenNama = buttonEl.getAttribute('data-konsumen-nama') || '';
+                const form = hapusModal.querySelector('form');
+                const nama = button.getAttribute('data-nama') || '';
+                const action = button.getAttribute('data-action') || '';
 
-            const namaEl = orderModal.querySelector('#tambahOrderNamaKonsumen');
-            if (namaEl) namaEl.textContent = konsumenNama;
+                if (form && action) form.setAttribute('action', action);
 
-            const hiddenId = orderModal.querySelector('#order_konsumen_id');
-            if (hiddenId) {
-                console.log(konsumenId);
-                hiddenId.value = konsumenId;
-            }
-        };
-
-        const tambahOrderButtons = document.querySelectorAll('[data-bs-target="#tambahOrderModal"]');
-        tambahOrderButtons.forEach((btn) => {
-            btn.addEventListener('click', function () {
-                setOrderKonsumen(btn);
+                const namaEl = hapusModal.querySelector('#hapusKonsumenNama');
+                if (namaEl) namaEl.textContent = nama;
             });
-        });
+        }
 
-        orderModal.addEventListener('show.bs.modal', function () {
+        const orderModal = document.getElementById('tambahOrderModal');
+        if (orderModal) {
+            const setOrderKonsumen = (buttonEl) => {
+                if (!buttonEl) return;
+
+                const konsumenId = buttonEl.getAttribute('data-konsumen-id') || '';
+                const konsumenNama = buttonEl.getAttribute('data-konsumen-nama') || '';
+
+                const namaEl = orderModal.querySelector('#tambahOrderNamaKonsumen');
+                if (namaEl) namaEl.textContent = konsumenNama;
+
+                const hiddenId = orderModal.querySelector('#order_konsumen_id');
+                if (hiddenId) {
+                    console.log(konsumenId);
+                    hiddenId.value = konsumenId;
+                }
+            };
+
+            const tambahOrderButtons = document.querySelectorAll('[data-bs-target="#tambahOrderModal"]');
+            tambahOrderButtons.forEach((btn) => {
+                btn.addEventListener('click', function () {
+                    setOrderKonsumen(btn);
+                });
+            });
+
             const statusSelect = orderModal.querySelector('#order_status');
             if (statusSelect && !statusSelect.value) statusSelect.value = 'Pending';
-        });
+        }
+
+        // Add Logic for Barang Dropdown Change
+        const barangSelect = orderModal.querySelector('#order_barang_id');
+        const jumlahInput = orderModal.querySelector('#order_jumlah');
+        const hargaSatuanInput = orderModal.querySelector('#order_harga_satuan');
+
+        if (barangSelect && jumlahInput) {
+            barangSelect.addEventListener('change', function () {
+                const barangId = this.value;
+                if (barangId) {
+                    fetch(`/barang/${barangId}/detail_json`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Update Jumlah with Stok (Read Only)
+                            jumlahInput.value = data.stok;
+
+                            // Optional: Alert if stock is 0
+                            if (data.stok <= 0) {
+                                alert('Stok barang ini habis!');
+                            }
+                        })
+                        .catch(err => console.error('Error fetching barang details:', err));
+                }
+            });
+
+            // Trigger change on load if value exists
+            if (barangSelect.value) {
+                barangSelect.dispatchEvent(new Event('change'));
+            }
+        }
     }
 
     const detailOrderModal = document.getElementById('detailOrderModal');

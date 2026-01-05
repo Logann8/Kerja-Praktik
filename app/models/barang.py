@@ -11,6 +11,7 @@ class Barang(db.Model):
     kode = db.Column(db.String(20), unique=True, nullable=False, index=True)
     nama = db.Column(db.String(100), nullable=False)
     satuan = db.Column(db.String(20), nullable=False)
+    stok = db.Column(db.Integer, nullable=False, default=0)
     harga_beli = db.Column(db.Numeric(15, 2), nullable=False, default=Decimal('0.00'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

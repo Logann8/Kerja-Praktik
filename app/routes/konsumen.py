@@ -17,6 +17,10 @@ def index():
 
     form = KonsumenForm()
     order_form = OrderForm()
+    # Populate choices for initial render
+    from app.models import Barang
+    order_form.barang_id.choices = [(b.id, f"{b.kode} - {b.nama} (Stok: {b.stok})") for b in Barang.query.all()]
+    
     status_form = StatusOrderForm()
 
     q = request.args.get('q', '')
@@ -143,17 +147,19 @@ def orders(id):
 def delete(id):
     konsumen = Konsumen.query.get_or_404(id)
 
-    has_order = db.session.query(exists().where(Order.konsumen_id == Konsumen.id)).filter(Konsumen.id == id).scalar()
-    if has_order:
-        flash('Konsumen tidak dapat dihapus karena masih memiliki order.', 'danger')
-        return redirect(url_for('konsumen.index'))
+    order_count = Order.query.filter_by(konsumen_id=id).count()
+    print("[DELETE KONSUMEN]", konsumen.id, "order:", order_count)
+
+    if order_count > 0:
+        flash('Konsumen tidak dapat dihapus karena masih memiliki order', 'danger')
+        return redirect(request.referrer or url_for('konsumen.index'))
 
     try:
         db.session.delete(konsumen)
         db.session.commit()
-        flash('Konsumen berhasil dihapus!', 'success')
+        flash('Konsumen berhasil dihapus', 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f'Terjadi kesalahan: {str(e)}', 'danger')
+        flash(f'Terjadi kesalahan saat menghapus konsumen: {str(e)}', 'danger')
 
-    return redirect(url_for('konsumen.index'))
+    return redirect(request.referrer or url_for('konsumen.index'))
