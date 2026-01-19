@@ -2,8 +2,17 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from config import config
 
+from flask_wtf.csrf import CSRFProtect
+
+from flask_login import LoginManager
+
 # Inisialisasi ekstensi
 db = SQLAlchemy()
+csrf = CSRFProtect()
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
+login_manager.login_message = 'Silakan login terlebih dahulu untuk mengakses halaman ini.'
+login_manager.login_message_category = 'warning'
 
 
 def create_app(config_name='development'):
@@ -23,10 +32,20 @@ def create_app(config_name='development'):
     
     # Inisialisasi ekstensi dengan app
     db.init_app(app)
+    csrf.init_app(app)
+    login_manager.init_app(app)
+
+    # User Loader
+    from app.models.user import User
+    
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
     
     # Register blueprints
-    from app.routes import laporan, dashboard, konsumen, order, barang
+    from app.routes import laporan, dashboard, konsumen, order, barang, auth
     
+    app.register_blueprint(auth.bp, url_prefix='/auth')
     app.register_blueprint(konsumen.bp, url_prefix='/konsumen')
     app.register_blueprint(order.bp, url_prefix='/order')
     app.register_blueprint(barang.bp, url_prefix='/barang')

@@ -7,6 +7,7 @@ from app.models.barang import Barang
 from app.models.pembelian import Pembelian
 from app.models.detail_pembelian import DetailPembelian
 from app.models.vendor import Vendor
+from app.models.user import User
 
 __all__ = [
     'Konsumen',
@@ -18,5 +19,6 @@ __all__ = [
     'Pembelian',
     'DetailPembelian',
     'Vendor',
+    'User',
 ]
 

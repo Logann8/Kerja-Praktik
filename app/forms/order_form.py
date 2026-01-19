@@ -8,7 +8,6 @@ class OrderForm(FlaskForm):
 
     tanggal_order = DateField(
         'Tanggal Order',
-        validators=[DataRequired(message='Tanggal Order wajib diisi')],
         render_kw={'class': 'form-control', 'type': 'date'},
     )
 
@@ -28,7 +27,7 @@ class OrderForm(FlaskForm):
             DataRequired(message='Jumlah wajib diisi'),
             NumberRange(min=1, message='Jumlah minimal 1'),
         ],
-        render_kw={'class': 'form-control', 'min': 1, 'step': 1, 'readonly': True, 'id': 'order_jumlah'},
+        render_kw={'class': 'form-control', 'min': 1, 'step': 1, 'id': 'order_jumlah'},
     )
 
     harga_satuan = DecimalField(
@@ -38,7 +37,7 @@ class OrderForm(FlaskForm):
             DataRequired(message='Harga Satuan wajib diisi'),
             NumberRange(min=0, message='Harga Satuan tidak boleh negatif'),
         ],
-        render_kw={'class': 'form-control', 'min': 0, 'step': '0.01', 'id': 'order_harga_satuan'},
+        render_kw={'class': 'form-control', 'min': 0, 'step': '0.01', 'id': 'order_harga_satuan', 'readonly': True},
     )
 
     status = SelectField(

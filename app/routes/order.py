@@ -3,6 +3,7 @@ import csv
 import io
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for, Response
+from flask_login import login_required
 
 from app import db
 from app.forms.order_form import OrderForm
@@ -13,6 +14,7 @@ bp = Blueprint('order', __name__)
 
 
 @bp.route('/create', methods=['POST'])
+@login_required
 def create():
     form = OrderForm()
     # Populate choices for barang_id
@@ -27,12 +29,16 @@ def create():
         pass
 
     if form.validate_on_submit():
-        tanggal = form.tanggal_order.data
-        tanggal_dt = datetime.combine(tanggal, datetime.min.time())
+        # Otomatis set tanggal order ke waktu sekarang
+        tanggal_dt = datetime.now()
         
         # Get selected barang for description
         barang = Barang.query.get(form.barang_id.data)
         deskripsi_barang = f"{barang.kode} - {barang.nama}" if barang else "Item Unknown"
+
+        if int(form.jumlah.data) > barang.stok:
+            flash(f'Stok tidak mencukupi! Tersedia: {barang.stok}', 'danger')
+            return redirect(url_for('konsumen.index'))
 
         order = Order(
             konsumen_id=int(form.konsumen_id.data),
@@ -40,7 +46,7 @@ def create():
             tanggal_order=tanggal_dt,
             deskripsi=deskripsi_barang, # Use proper Item Name
             jumlah=int(form.jumlah.data),
-            harga_satuan=form.harga_satuan.data,
+            harga_satuan=barang.harga_jual, # Force use DB price
             status=form.status.data or 'Pending',
         )
 
@@ -71,6 +77,7 @@ def create():
 
 
 @bp.route('/konsumen/<int:konsumen_id>')
+@login_required
 def konsumen(konsumen_id):
     orders = Order.query.filter_by(konsumen_id=konsumen_id).order_by(Order.tanggal_order.desc()).all()
     
@@ -82,6 +89,7 @@ def konsumen(konsumen_id):
 
 
 @bp.route('/<int:order_id>/status', methods=['GET', 'POST'])
+@login_required
 def update_status(order_id):
     order = Order.query.get_or_404(order_id)
 
@@ -138,6 +146,19 @@ def update_status(order_id):
             print(f"[ORDER.STATUS] before_commit order_status={order.status!r} -> new_status={new_status!r}")
         except Exception:
             pass
+        # Update stok barang logic
+        if order.status != new_status:
+            from app.models.barang import Barang
+            barang = Barang.query.get(order.barang_id)
+            
+            if barang:
+                if new_status == 'Selesai' and order.status != 'Selesai':
+                    # Kurangi stok jika status berubah jadi Selesai
+                    barang.stok -= order.jumlah
+                elif order.status == 'Selesai' and new_status != 'Selesai':
+                    # Kembalikan stok jika status batal dari Selesai
+                    barang.stok += order.jumlah
+
         order.status = new_status
         db.session.commit()
         try:
@@ -157,6 +178,7 @@ def update_status(order_id):
 
 
 @bp.route('/<int:order_id>/status/ajax', methods=['POST'])
+@login_required
 def update_status_ajax(order_id):
     order = Order.query.get_or_404(order_id)
 
@@ -172,6 +194,19 @@ def update_status_ajax(order_id):
         return konsumen(order.konsumen_id), 400
 
     try:
+        # Update stok barang logic
+        if order.status != status:
+            from app.models.barang import Barang
+            barang = Barang.query.get(order.barang_id)
+            
+            if barang:
+                if status == 'Selesai' and order.status != 'Selesai':
+                    # Kurangi stok jika status berubah jadi Selesai
+                    barang.stok -= order.jumlah
+                elif order.status == 'Selesai' and status != 'Selesai':
+                    # Kembalikan stok jika status batal dari Selesai
+                    barang.stok += order.jumlah
+        
         order.status = status
         db.session.commit()
         flash('Status order berhasil diupdate!', 'success')
@@ -183,7 +218,51 @@ def update_status_ajax(order_id):
     return konsumen(order.konsumen_id)
 
 
+@bp.route('/<int:order_id>/cancel', methods=['POST'])
+@login_required
+def cancel(order_id):
+    order = Order.query.get_or_404(order_id)
+    
+    # Hanya bisa batalkan Pending atau Proses
+    if order.status not in ['Pending', 'Proses']:
+        flash('Hanya order dengan status Pending atau Proses yang dapat dibatalkan.', 'danger')
+        return redirect(request.referrer or url_for('konsumen.orders', id=order.konsumen_id))
+
+    try:
+        order.status = 'Dibatalkan'
+        db.session.commit()
+        flash('Order berhasil dibatalkan.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Terjadi kesalahan saat membatalkan order: {str(e)}', 'danger')
+
+    return redirect(request.referrer or url_for('konsumen.orders', id=order.konsumen_id))
+
+
+@bp.route('/<int:order_id>/delete', methods=['POST'])
+@login_required
+def delete(order_id):
+    order = Order.query.get_or_404(order_id)
+    konsumen_id = order.konsumen_id
+    
+    # Restrict delete: Hanya status Selesai yang boleh dihapus
+    if order.status != 'Selesai':
+        flash('Hanya order dengan status "Selesai" yang dapat dihapus.', 'danger')
+        return redirect(url_for('konsumen.orders', id=konsumen_id))
+
+    try:
+        db.session.delete(order)
+        db.session.commit()
+        flash('Order berhasil dihapus!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Terjadi kesalahan saat menghapus order: {str(e)}', 'danger')
+
+    return redirect(url_for('konsumen.orders', id=konsumen_id))
+
+
 @bp.route('/export', methods=['GET'])
+@login_required
 def export_csv():
     """Export data penjualan ke CSV"""
     # Import needed models locally to avoid circular imports if any

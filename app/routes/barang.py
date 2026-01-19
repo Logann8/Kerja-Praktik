@@ -1,143 +1,55 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from sqlalchemy import or_, func
-from decimal import Decimal
-import csv
-import io
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask_login import login_required
+from sqlalchemy import func
 from app import db
 from app.models import Barang
-from app.forms.barang_form import BarangForm
+import csv
+import io
+from datetime import datetime
 
 bp = Blueprint('barang', __name__)
 
-
 @bp.route('/')
+@login_required
 def index():
-    """Menampilkan daftar semua barang"""
+    """Menampilkan daftar barang (Read Only)"""
     page = request.args.get('page', 1, type=int)
     per_page = 10
     
-    # Search functionality
-    search = request.args.get('search', '')
-    query = Barang.query
+    query = request.args.get('q', '')
     
-    if search:
-        search_pattern = f'%{search}%'
-        query = query.filter(
-            or_(
-                func.lower(Barang.kode).like(func.lower(search_pattern)),
-                func.lower(Barang.nama).like(func.lower(search_pattern))
-            )
+    barang_query = Barang.query
+    
+    if query:
+        search = f"%{query}%"
+        barang_query = barang_query.filter(
+            (Barang.nama_barang.like(search)) |
+            (Barang.kode_barang.like(search)) |
+            (Barang.kategori.like(search))
         )
     
-    barangs = query.order_by(Barang.created_at.desc()).paginate(
-        page=page, per_page=per_page, error_out=False
+    barang_pagination = barang_query.order_by(Barang.nama_barang.asc()).paginate(
+        page=page, per_page=per_page
     )
     
-    return render_template('barang/index.html', barangs=barangs, search=search)
-
-
-@bp.route('/<int:id>/detail_json')
-def detail_json(id):
-    """Mengembalikan detail barang dalam format JSON"""
-    barang = Barang.query.get_or_404(id)
-    return {
-        'id': barang.id,
-        'kode': barang.kode,
-        'nama': barang.nama,
-        'satuan': barang.satuan,
-        'stok': barang.stok,
-        'harga_beli': float(barang.harga_beli)
+    # Statistics
+    stats = {
+        'total_items': Barang.query.count(),
+        'low_stock': Barang.query.filter(Barang.stok <= Barang.minimum).count(),
+        'total_asset_value': db.session.query(func.sum(Barang.stok * Barang.harga_beli)).scalar() or 0,
+        'total_stock_volume': db.session.query(func.sum(Barang.stok)).scalar() or 0
     }
 
-
-@bp.route('/create', methods=['GET', 'POST'])
-def create():
-    """Membuat barang baru"""
-    form = BarangForm()
-    
-    if form.validate_on_submit():
-        # Cek apakah kode sudah ada
-        existing_barang = Barang.query.filter_by(kode=form.kode.data).first()
-        if existing_barang:
-            flash('Kode barang sudah digunakan. Silakan gunakan kode lain.', 'danger')
-            return render_template('barang/create.html', form=form)
-        
-        # Buat barang baru
-        barang = Barang(
-            kode=form.kode.data.strip().upper(),
-            nama=form.nama.data.strip(),
-            satuan=form.satuan.data.strip(),
-            harga_beli=Decimal(str(form.harga_beli.data)) if form.harga_beli.data else Decimal('0.00')
-        )
-        
-        try:
-            db.session.add(barang)
-            db.session.commit()
-            flash('Barang berhasil ditambahkan!', 'success')
-            return redirect(url_for('barang.index'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Terjadi kesalahan: {str(e)}', 'danger')
-    
-    return render_template('barang/create.html', form=form)
-
-
-@bp.route('/<int:id>/edit', methods=['GET', 'POST'])
-def edit(id):
-    """Mengedit barang"""
-    barang = Barang.query.get_or_404(id)
-    form = BarangForm(obj=barang)
-    
-    if form.validate_on_submit():
-        # Cek apakah kode sudah digunakan barang lain
-        existing_barang = Barang.query.filter(
-            Barang.kode == form.kode.data.strip().upper(),
-            Barang.id != id
-        ).first()
-        
-        if existing_barang:
-            flash('Kode barang sudah digunakan. Silakan gunakan kode lain.', 'danger')
-            return render_template('barang/edit.html', form=form, barang=barang)
-        
-        # Update barang
-        barang.kode = form.kode.data.strip().upper()
-        barang.nama = form.nama.data.strip()
-        barang.satuan = form.satuan.data.strip()
-        barang.harga_beli = Decimal(str(form.harga_beli.data)) if form.harga_beli.data else Decimal('0.00')
-        
-        try:
-            db.session.commit()
-            flash('Barang berhasil diupdate!', 'success')
-            return redirect(url_for('barang.index'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Terjadi kesalahan: {str(e)}', 'danger')
-    
-    return render_template('barang/edit.html', form=form, barang=barang)
-
-
-@bp.route('/<int:id>/delete', methods=['POST'])
-def delete(id):
-    """Menghapus barang"""
-    barang = Barang.query.get_or_404(id)
-    
-    # Cek apakah barang memiliki detail pembelian
-    if barang.detail_pembelians:
-        flash('Barang tidak dapat dihapus karena masih digunakan dalam transaksi pembelian!', 'danger')
-        return redirect(url_for('barang.index'))
-    
-    try:
-        db.session.delete(barang)
-        db.session.commit()
-        flash('Barang berhasil dihapus!', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Terjadi kesalahan: {str(e)}', 'danger')
-    
-    return redirect(url_for('barang.index'))
-
+    return render_template(
+        'barang/index.html',
+        barangs=barang_pagination.items,
+        pagination=barang_pagination,
+        search_query=query,
+        stats=stats
+    )
 
 @bp.route('/import', methods=['POST'])
+@login_required
 def import_csv():
     """Import data barang dari CSV"""
     if 'file' not in request.files:
@@ -154,73 +66,66 @@ def import_csv():
             stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
             csv_input = csv.DictReader(stream)
             
-            # Validasi header minimal yang sering digunakan
-            # Sesuaikan dengan format CSV User: kode,nama,satuan,stok,harga_beli
+            # Expected Headers:
+            # "Kode Barang","Nama Barang","Kategori","Stok","Unit","Minimum","Status","Harga Beli","Harga Jual"
             
             success_count = 0
-            updated_count = 0
+            skip_count = 0
             
             for row in csv_input:
-                # Normalisasi keys (lower case dan strip whitespace)
-                row = {k.strip().lower(): v.strip() for k, v in row.items() if k}
+                # Normalize keys (strip spaces, though csv reader usually handles header if quoted well)
+                # We assume correct caching of headers by DictReader
                 
-                kode = row.get('kode')
+                # Retrieve fields
+                kode = row.get('Kode Barang')
                 if not kode: 
                     continue
-                    
-                nama = row.get('nama', '')
-                satuan = row.get('satuan', 'Pcs')
                 
-                # Parse stok
-                try:
-                    stok = int(row.get('stok', 0))
-                except ValueError:
-                    stok = 0
-                    
-                # Parse harga_beli
-                try:
-                    # Hapus Rp dan format ribuan jika ada
-                    harga_raw = row.get('harga_beli', '0').replace('Rp', '').replace(',', '').replace('.', '')
-                    if not harga_raw: harga_raw = '0'
-                    harga_beli = Decimal(harga_raw)
-                except Exception:
-                    harga_beli = Decimal('0.00')
-                    
-                # Cek existing barang
-                barang = Barang.query.filter_by(kode=kode.upper()).first()
-                
-                if barang:
-                    # Update
-                    # Hanya update jika ada data, atau update paksa stok?
-                    # Sesuai diagram: Update Harga/Stok
-                    if nama: barang.nama = nama
-                    barang.stok = stok 
-                    barang.harga_beli = harga_beli
-                    if satuan: barang.satuan = satuan
-                    updated_count += 1
+                # Check for existing
+                existing = Barang.query.filter_by(kode_barang=kode).first()
+                if existing:
+                    # Update existing
+                    existing.nama_barang = row.get('Nama Barang', existing.nama_barang)
+                    existing.kategori = row.get('Kategori', existing.kategori)
+                    existing.stok = int(row.get('Stok', existing.stok) or 0)
+                    existing.unit = row.get('Unit', existing.unit)
+                    existing.minimum = int(row.get('Minimum', existing.minimum) or 0)
+                    existing.status = row.get('Status', existing.status)
+                    existing.harga_beli = int(row.get('Harga Beli', existing.harga_beli) or 0)
+                    existing.harga_jual = int(row.get('Harga Jual', existing.harga_jual) or 0)
+                    existing.last_sync_at = datetime.utcnow()
+                    skip_count += 1 # Count as updated/skipped for new insert count
                 else:
-                    # Create New
+                    # Insert new
                     new_barang = Barang(
-                        kode=kode.upper(),
-                        nama=nama if nama else f"Barang {kode}",
-                        satuan=satuan,
-                        stok=stok,
-                        harga_beli=harga_beli
+                        kode_barang=kode,
+                        nama_barang=row.get('Nama Barang', ''),
+                        kategori=row.get('Kategori', 'Umum'),
+                        stok=int(row.get('Stok', 0) or 0),
+                        unit=row.get('Unit', 'Pcs'),
+                        minimum=int(row.get('Minimum', 0) or 0),
+                        status=row.get('Status', 'Aktif'),
+                        harga_beli=int(row.get('Harga Beli', 0) or 0),
+                        harga_jual=int(row.get('Harga Jual', 0) or 0),
+                        last_sync_at=datetime.utcnow()
                     )
                     db.session.add(new_barang)
                     success_count += 1
             
             db.session.commit()
-            flash(f'Import berhasil! {success_count} barang baru, {updated_count} barang diupdate.', 'success')
+            flash(f'Import berhasil: {success_count} data baru ditambahkan. {skip_count} data dilewati (sudah ada).', 'success')
             
         except Exception as e:
-            db.session.rollback()
-            flash(f'Terjadi kesalahan saat import CSV: {str(e)}', 'danger')
+            flash(f'Terjadi kesalahan saat import: {str(e)}', 'danger')
             
     else:
         flash('Format file harus CSV', 'danger')
         
     return redirect(url_for('barang.index'))
 
-
-
+@bp.route('/<int:id>/detail_json')
+@login_required
+def detail_json(id):
+    """API untuk mengambil detail barang (dipakai di form Order)"""
+    barang = Barang.query.get_or_404(id)
+    return jsonify(barang.to_dict())

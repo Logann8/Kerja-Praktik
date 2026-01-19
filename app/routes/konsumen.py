@@ -1,4 +1,5 @@
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask_login import login_required
 from sqlalchemy import exists, func, or_
 
 from app import db
@@ -11,6 +12,7 @@ bp = Blueprint('konsumen', __name__)
 
 
 @bp.route('/')
+@login_required
 def index():
     page = request.args.get('page', 1, type=int)
     per_page = current_app.config.get('ITEMS_PER_PAGE', 10)
@@ -19,7 +21,9 @@ def index():
     order_form = OrderForm()
     # Populate choices for initial render
     from app.models import Barang
-    order_form.barang_id.choices = [(b.id, f"{b.kode} - {b.nama} (Stok: {b.stok})") for b in Barang.query.all()]
+    all_barang = Barang.query.order_by(Barang.nama_barang.asc()).all()
+    # PENTING: Choices tetap diisi agar validasi form (validate_on_submit) berhasil
+    order_form.barang_id.choices = [(b.id, b.nama_barang) for b in all_barang]
     
     status_form = StatusOrderForm()
 
@@ -51,10 +55,11 @@ def index():
         error_out=False,
     )
 
-    return render_template('konsumen/index.html', konsumen=konsumen, q=q, filter=filter_value, form=form, order_form=order_form, status_form=status_form)
+    return render_template('konsumen/index.html', konsumen=konsumen, q=q, filter=filter_value, form=form, order_form=order_form, status_form=status_form, all_barang=all_barang)
 
 
 @bp.route('/create', methods=['POST'])
+@login_required
 def create():
     form = KonsumenForm()
 
@@ -86,6 +91,7 @@ def create():
 
 
 @bp.route('/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
 def edit(id):
     konsumen = Konsumen.query.get_or_404(id)
     form = KonsumenForm(obj=konsumen)
@@ -108,6 +114,7 @@ def edit(id):
 
 
 @bp.route('/update/<int:id>', methods=['POST'])
+@login_required
 def update(id):
     konsumen = Konsumen.query.get_or_404(id)
     form = KonsumenForm()
@@ -137,6 +144,7 @@ def update(id):
 
 
 @bp.route('/<int:id>/orders', methods=['GET'])
+@login_required
 def orders(id):
     konsumen = Konsumen.query.get_or_404(id)
     orders = Order.query.filter_by(konsumen_id=id).order_by(Order.tanggal_order.desc()).all()
@@ -144,6 +152,7 @@ def orders(id):
 
 
 @bp.route('/<int:id>/delete', methods=['POST'])
+@login_required
 def delete(id):
     konsumen = Konsumen.query.get_or_404(id)
 

@@ -1,171 +1,223 @@
 {% extends "base.html" %}
 
-{% block title %}Daftar Barang - Aplikasi Pembelian{% endblock %}
+{% block title %}Data Barang - Aplikasi Pendataan{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="bi bi-box-seam"></i> Daftar Barang</h2>
-            <div>
-                <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#importModal">
-                    <i class="bi bi-file-earmark-spreadsheet"></i> Import CSV
-                </button>
-                <a href="{{ url_for('barang.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Tambah Barang
-                </a>
-            </div>
+<div class="page-header mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2 class="h2 mb-1">Data Barang</h2>
+            <p class="text-muted small mb-0">Master data stok dari CSV App 1</p>
         </div>
-
-        <!-- Import Modal -->
-        <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="{{ url_for('barang.import_csv') }}" method="POST" enctype="multipart/form-data">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="importModalLabel">Import Data Barang</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="file" class="form-label">Pilih File CSV</label>
-                                <input class="form-control" type="file" id="file" name="file" accept=".csv" required>
-                                <div class="form-text">Format CSV: kode, nama, satuan, stok, harga_beli</div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-primary">Import</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importModal">
+                <i class="bi bi-file-earmark-spreadsheet me-2"></i>Import CSV
+            </button>
         </div>
+    </div>
+</div>
 
-        <!-- Search Form -->
-        <div class="card mb-4">
+<!-- Statistics Cards -->
+<div class="row mb-4 g-3">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-                <form method="GET" action="{{ url_for('barang.index') }}" class="row g-3">
-                    <div class="col-md-10">
-                        <input type="text" class="form-control" name="search"
-                            placeholder="Cari barang (kode atau nama)..." value="{{ search }}">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
+                            <i class="bi bi-box-seam fs-4"></i>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-outline-primary w-100">
-                            <i class="bi bi-search"></i> Cari
-                        </button>
+                    <div>
+                        <h6 class="card-subtitle text-muted mb-1">Total Jenis Barang</h6>
+                        <h4 class="card-title mb-0">{{ stats.total_items }}</h4>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-
-        <!-- Barang Table -->
-        <div class="card">
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-                {% if barangs.items %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>No</th>
-                                <th>Kode</th>
-                                <th>Nama Barang</th>
-                                <th>Satuan</th>
-                                <th>Harga Beli</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for barang in barangs.items %}
-                            <tr>
-                                <td>{{ (barangs.page - 1) * barangs.per_page + loop.index }}</td>
-                                <td><strong>{{ barang.kode }}</strong></td>
-                                <td>{{ barang.nama }}</td>
-                                <td>{{ barang.satuan }}</td>
-                                <td>Rp {{ "{:,.2f}".format(float(barang.harga_beli)) }}</td>
-                                <td>
-                                    <a href="{{ url_for('barang.edit', id=barang.id) }}" class="btn btn-sm btn-warning"
-                                        title="Edit">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <form method="POST" action="{{ url_for('barang.delete', id=barang.id) }}"
-                                        class="d-inline"
-                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus barang ini?');">
-                                        <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning">
+                            <i class="bi bi-exclamation-triangle fs-4"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h6 class="card-subtitle text-muted mb-1">Stok Menipis</h6>
+                        <h4 class="card-title mb-0">{{ stats.low_stock }}</h4>
+                    </div>
                 </div>
-
-                <!-- Pagination -->
-                {% if barangs.pages > 1 %}
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center">
-                        {% if barangs.has_prev %}
-                        <li class="page-item">
-                            <a class="page-link"
-                                href="{{ url_for('barang.index', page=barangs.prev_num, search=search) }}">
-                                <i class="bi bi-chevron-left"></i> Sebelumnya
-                            </a>
-                        </li>
-                        {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="bi bi-chevron-left"></i> Sebelumnya</span>
-                        </li>
-                        {% endif %}
-
-                        {% for page_num in barangs.iter_pages(left_edge=1, right_edge=1, left_current=2,
-                        right_current=2) %}
-                        {% if page_num %}
-                        {% if page_num == barangs.page %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ page_num }}</span>
-                        </li>
-                        {% else %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('barang.index', page=page_num, search=search) }}">
-                                {{ page_num }}
-                            </a>
-                        </li>
-                        {% endif %}
-                        {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">...</span>
-                        </li>
-                        {% endif %}
-                        {% endfor %}
-
-                        {% if barangs.has_next %}
-                        <li class="page-item">
-                            <a class="page-link"
-                                href="{{ url_for('barang.index', page=barangs.next_num, search=search) }}">
-                                Selanjutnya <i class="bi bi-chevron-right"></i>
-                            </a>
-                        </li>
-                        {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">Selanjutnya <i class="bi bi-chevron-right"></i></span>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
-
-                <div class="text-muted text-center mt-3">
-                    Menampilkan {{ barangs.items|length }} dari {{ barangs.total }} barang
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
+                            <i class="bi bi-cash-stack fs-4"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h6 class="card-subtitle text-muted mb-1">Total Nilai Aset</h6>
+                        <h4 class="card-title mb-0">Rp {{ "{:,.0f}".format(stats.total_asset_value) }}</h4>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle text-info">
+                            <i class="bi bi-layers fs-4"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h6 class="card-subtitle text-muted mb-1">Total Volume Stok</h6>
+                        <h4 class="card-title mb-0">{{ "{:,.0f}".format(stats.total_stock_volume) }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Filter -->
+<div class="card mb-4 border-0 shadow-sm">
+    <div class="card-body">
+        <form action="{{ url_for('barang.index') }}" method="get" class="row g-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control border-start-0 ps-0"
+                        placeholder="Cari kode, nama, atau kategori..." value="{{ search_query }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Cari</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Data Table -->
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">Kode Barang</th>
+                    <th>Nama Barang</th>
+                    <th>Kategori</th>
+                    <th class="text-center">Stok</th>
+                    <th>Unit</th>
+                    <th>Status</th>
+                    <th class="text-end">Harga Beli</th>
+                    <th class="text-end pe-4">Harga Jual</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if barangs %}
+                {% for item in barangs %}
+                <tr>
+                    <td class="ps-4 fw-medium">{{ item.kode_barang }}</td>
+                    <td>{{ item.nama_barang }}</td>
+                    <td>
+                        <span class="badge bg-light text-dark border">{{ item.kategori }}</span>
+                    </td>
+                    <td class="text-center">
+                        {% if item.stok <= item.minimum %} <span class="text-danger fw-bold">{{ item.stok }}</span>
+                            {% else %}
+                            {{ item.stok }}
+                            {% endif %}
+                    </td>
+                    <td>{{ item.unit }}</td>
+                    <td>
+                        {% if item.status == 'Aktif' %}
+                        <span class="badge bg-success-subtle text-success">Aktif</span>
+                        {% else %}
+                        <span class="badge bg-secondary-subtle text-secondary">{{ item.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">Rp {{ "{:,.0f}".format(item.harga_beli) }}</td>
+                    <td class="text-end pe-4 fw-bold text-primary">Rp {{ "{:,.0f}".format(item.harga_jual) }}</td>
+                </tr>
+                {% endfor %}
                 {% else %}
-                <div class="alert alert-info text-center">
-                    <i class="bi bi-info-circle"></i> Tidak ada data barang.
-                    <a href="{{ url_for('barang.create') }}" class="alert-link">Tambah barang baru</a>
-                </div>
+                <tr>
+                    <td colspan="8" class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                        Belum ada data barang. Silakan import CSV.
+                    </td>
+                </tr>
                 {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <div class="card-footer bg-white border-top-0 py-3">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item {{ 'disabled' if not pagination.has_prev }}">
+                    <a class="page-link"
+                        href="{{ url_for('barang.index', page=pagination.prev_num, q=search_query) }}">Previous</a>
+                </li>
+                {% for page_num in pagination.iter_pages() %}
+                {% if page_num %}
+                <li class="page-item {{ 'active' if page_num == pagination.page }}">
+                    <a class="page-link" href="{{ url_for('barang.index', page=page_num, q=search_query) }}">{{ page_num
+                        }}</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+                {% endfor %}
+                <li class="page-item {{ 'disabled' if not pagination.has_next }}">
+                    <a class="page-link"
+                        href="{{ url_for('barang.index', page=pagination.next_num, q=search_query) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Import Modal -->
+<div class="modal fade" id="importModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Import Data Barang</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+            <form action="{{ url_for('barang.import_csv') }}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">File CSV Master Stok</label>
+                        <input class="form-control" type="file" id="file" name="file" accept=".csv" required>
+                        <div class="form-text text-muted">
+                            Format CSV: "Kode Barang", "Nama Barang", "Kategori", "Stok", "Unit", "Minimum", "Status",
+                            "Harga Beli", "Harga Jual"
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">Import</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

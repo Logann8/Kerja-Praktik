@@ -4,33 +4,57 @@ from app import db
 
 
 class Barang(db.Model):
-    """Model untuk tabel barang"""
+    """Model untuk tabel barang (CSV Mirror)"""
     __tablename__ = 'barang'
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    kode = db.Column(db.String(20), unique=True, nullable=False, index=True)
-    nama = db.Column(db.String(100), nullable=False)
-    satuan = db.Column(db.String(20), nullable=False)
+    
+    # Fields sesuai permintaan user
+    kode_barang = db.Column(db.String(20), unique=True, nullable=False, index=True)
+    nama_barang = db.Column(db.String(100), nullable=False)
+    kategori = db.Column(db.String(50))
     stok = db.Column(db.Integer, nullable=False, default=0)
-    harga_beli = db.Column(db.Numeric(15, 2), nullable=False, default=Decimal('0.00'))
+    unit = db.Column(db.String(20))
+    minimum = db.Column(db.Integer)
+    status = db.Column(db.String(20))
+    harga_beli = db.Column(db.Integer, default=0)
+    harga_jual = db.Column(db.Integer, default=0)
+    
+    last_sync_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
-    # Relasi one-to-many dengan DetailPembelian
-    detail_pembelians = db.relationship('DetailPembelian', backref='barang', lazy=True)
+    # Aliases for backward compatibility (if needed by Order)
+    @property
+    def kode(self):
+        return self.kode_barang
+    
+    @property
+    def nama(self):
+        return self.nama_barang
+        
+    @property
+    def satuan(self):
+        return self.unit
+    
+    # Relasi one-to-many dengan DetailPembelian (jika ada)
+    # detail_pembelians = db.relationship('DetailPembelian', backref='barang', lazy=True)
     
     def __repr__(self):
-        return f'<Barang {self.kode}: {self.nama}>'
+        return f'<Barang {self.kode_barang}: {self.nama_barang}>'
     
     def to_dict(self):
         """Mengkonversi model ke dictionary"""
         return {
             'id': self.id,
-            'kode': self.kode,
-            'nama': self.nama,
-            'satuan': self.satuan,
-            'harga_beli': float(self.harga_beli) if self.harga_beli else 0.0,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'kode_barang': self.kode_barang,
+            'nama_barang': self.nama_barang,
+            'kategori': self.kategori,
+            'stok': self.stok,
+            'unit': self.unit,
+            'minimum': self.minimum,
+            'status': self.status,
+            'harga_beli': self.harga_beli,
+            'harga_jual': self.harga_jual,
+            'last_sync_at': self.last_sync_at.isoformat() if self.last_sync_at else None
         }
-

@@ -8,17 +8,22 @@
         <h1 class="h2">Dashboard</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <div class="btn-group me-2">
-                <a href="{{ url_for('dashboard.dashboard', range='today') }}" class="btn btn-sm btn-outline-primary {% if range == 'today' %}active{% endif %}">Hari Ini</a>
-                <a href="{{ url_for('dashboard.dashboard', range='week') }}" class="btn btn-sm btn-outline-primary {% if range == 'week' %}active{% endif %}">Minggu Ini</a>
-                <a href="{{ url_for('dashboard.dashboard', range='month') }}" class="btn btn-sm btn-outline-primary {% if range == 'month' %}active{% endif %}">Bulan Ini</a>
+                <a href="{{ url_for('dashboard.dashboard', range='today') }}"
+                    class="btn btn-sm btn-outline-primary {% if range == 'today' %}active{% endif %}">Hari Ini</a>
+                <a href="{{ url_for('dashboard.dashboard', range='week') }}"
+                    class="btn btn-sm btn-outline-primary {% if range == 'week' %}active{% endif %}">Minggu Ini</a>
+                <a href="{{ url_for('dashboard.dashboard', range='month') }}"
+                    class="btn btn-sm btn-outline-primary {% if range == 'month' %}active{% endif %}">Bulan Ini</a>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exportLaporanModal">
+            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                data-bs-target="#exportLaporanModal">
                 <i class="bi bi-printer"></i> Export Laporan
             </button>
         </div>
     </div>
 
-    <div class="modal fade" id="exportLaporanModal" tabindex="-1" aria-labelledby="exportLaporanModalLabel" aria-hidden="true">
+    <div class="modal fade" id="exportLaporanModal" tabindex="-1" aria-labelledby="exportLaporanModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -32,7 +37,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <a class="btn btn-primary" href="{{ url_for('laporan.konsumen_pdf') }}" target="_blank" rel="noopener">
+                    <a class="btn btn-primary" href="{{ url_for('laporan.konsumen_pdf') }}" target="_blank"
+                        rel="noopener">
                         <i class="bi bi-printer me-1"></i>Cetak
                     </a>
                 </div>
@@ -41,7 +47,7 @@
     </div>
 
     <div class="row g-4 mb-4">
-        <div class="col-12 col-md-6 col-xl-3" style="--i: 1">
+        <div class="col-12 col-md-6" style="--i: 1">
             <div class="card stat-card h-100 border-0 shadow-sm">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -49,16 +55,15 @@
                             <i class="bi bi-person-vcard text-primary"></i>
                         </div>
                         <div class="text-end">
-                            <div class="text-muted small">Jumlah Konsumen</div>
+                            <div class="text-muted small">Total Konsumen</div>
                             <div class="stat-value" data-count="{{ total_konsumen }}">0</div>
                         </div>
                     </div>
-                    <div class="text-muted small mt-3">Jumlah konsumen terdaftar</div>
                 </div>
             </div>
         </div>
 
-        <div class="col-12 col-md-6 col-xl-3" style="--i: 2">
+        <div class="col-12 col-md-6" style="--i: 2">
             <div class="card stat-card h-100 border-0 shadow-sm">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -66,95 +71,21 @@
                             <i class="bi bi-bag-check text-primary"></i>
                         </div>
                         <div class="text-end">
-                            <div class="text-muted small">Jumlah Order</div>
+                            <div class="text-muted small">Total Order</div>
                             <div class="stat-value" data-count="{{ total_order }}">0</div>
                         </div>
                     </div>
-                    <div class="text-muted small mt-3">Total order yang tercatat</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3" style="--i: 3">
-            <div class="card stat-card h-100 border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-icon bg-warning bg-opacity-10">
-                            <i class="bi bi-hourglass-split text-warning"></i>
-                        </div>
-                        <div class="text-end">
-                            <div class="text-muted small">Order Pending</div>
-                            <div class="stat-value" data-count="{{ status_summary['Pending'] }}">0</div>
-                        </div>
-                    </div>
-                    <div class="text-muted small mt-3">Menunggu diproses</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3" style="--i: 4">
-            <div class="card stat-card h-100 border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-icon bg-primary bg-opacity-10">
-                            <i class="bi bi-gear-wide-connected text-primary"></i>
-                        </div>
-                        <div class="text-end">
-                            <div class="text-muted small">Order Produksi</div>
-                            <div class="stat-value" data-count="{{ status_summary['Produksi'] }}">0</div>
-                        </div>
-                    </div>
-                    <div class="text-muted small mt-3">Sedang diproses</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3" style="--i: 5">
-            <div class="card stat-card h-100 border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-icon bg-success bg-opacity-10">
-                            <i class="bi bi-check2-circle text-success"></i>
-                        </div>
-                        <div class="text-end">
-                            <div class="text-muted small">Order Selesai</div>
-                            <div class="stat-value" data-count="{{ status_summary['Selesai'] }}">0</div>
-                        </div>
-                    </div>
-                    <div class="text-muted small mt-3">Order selesai</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row g-4" style="--i: 5">
-        <div class="col-12 col-lg-4">
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="mb-0">Ringkasan Status Order</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3" style="height: 220px;">
-                        <canvas id="orderChart"></canvas>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="text-muted">Pending</div>
-                        <span class="badge bg-warning text-dark">{{ status_summary['Pending'] }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="text-muted">Produksi</div>
-                        <span class="badge bg-primary">{{ status_summary['Produksi'] }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="text-muted">Selesai</div>
-                        <span class="badge bg-success">{{ status_summary['Selesai'] }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card border-0 shadow-sm">
+    <div class="row g-4" style="--i: 3">
+        <!-- Konsumen Terbaru -->
+        <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Aktivitas Pelanggan</h5>
+                    <h5 class="mb-0">Konsumen Terbaru</h5>
                     <span class="text-muted small">Limit 5</span>
                 </div>
                 <div class="card-body p-0">
@@ -163,21 +94,21 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Nama Konsumen</th>
-                                    <th style="width: 140px;" class="text-end">Total Order</th>
+                                    <th class="text-end">Tanggal Ditambahkan</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% if aktivitas_pelanggan %}
-                                    {% for item in aktivitas_pelanggan %}
-                                        <tr>
-                                            <td><strong>{{ item[0] }}</strong></td>
-                                            <td class="text-end">{{ item[1] }}</td>
-                                        </tr>
-                                    {% endfor %}
+                                {% if latest_consumers %}
+                                {% for konsumen in latest_consumers %}
+                                <tr>
+                                    <td><strong>{{ konsumen.nama }}</strong></td>
+                                    <td class="text-end text-muted">{{ konsumen.created_at.strftime('%d/%m/%Y') }}</td>
+                                </tr>
+                                {% endfor %}
                                 {% else %}
-                                    <tr>
-                                        <td colspan="2" class="text-center text-muted py-4">Belum ada aktivitas</td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted py-4">Belum ada konsumen</td>
+                                </tr>
                                 {% endif %}
                             </tbody>
                         </table>
@@ -186,8 +117,9 @@
             </div>
         </div>
 
-        <div class="col-12 col-lg-8">
-            <div class="card border-0 shadow-sm">
+        <!-- Order Terbaru -->
+        <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Order Terbaru</h5>
                     <span class="text-muted small">Limit 5</span>
@@ -197,36 +129,34 @@
                         <table class="table table-hover mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width: 140px;">Tanggal</th>
+                                    <th>Tanggal</th>
                                     <th>Konsumen</th>
-                                    <th>Deskripsi</th>
-                                    <th style="width: 140px;">Status</th>
+                                    <th class="text-end">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% if latest_orders %}
-                                    {% for item in latest_orders %}
-                                        {% set o = item[0] %}
-                                        {% set k = item[1] %}
-                                        <tr>
-                                            <td>{{ o.tanggal_order.strftime('%d/%m/%Y') }}</td>
-                                            <td><strong>{{ k.nama }}</strong></td>
-                                            <td>{{ o.deskripsi }}</td>
-                                            <td>
-                                                {% if o.status == 'Selesai' %}
-                                                    <span class="badge bg-success">Selesai</span>
-                                                {% elif o.status == 'Proses' %}
-                                                    <span class="badge bg-primary">Produksi</span>
-                                                {% else %}
-                                                    <span class="badge bg-warning text-dark">Pending</span>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
+                                {% for item in latest_orders %}
+                                {% set o = item[0] %}
+                                {% set k = item[1] %}
+                                <tr>
+                                    <td>{{ o.tanggal_order.strftime('%d/%m/%Y') }}</td>
+                                    <td><strong>{{ k.nama }}</strong></td>
+                                    <td class="text-end">
+                                        {% if o.status == 'Selesai' %}
+                                        <span class="badge bg-success">Selesai</span>
+                                        {% elif o.status == 'Proses' %}
+                                        <span class="badge bg-primary">Produksi</span>
+                                        {% else %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
                                 {% else %}
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">Belum ada order</td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-4">Belum ada order</td>
+                                </tr>
                                 {% endif %}
                             </tbody>
                         </table>
@@ -245,6 +175,7 @@
             opacity: 0;
             transform: translateY(10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -304,8 +235,6 @@
     }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
 <script>
     (function () {
         const root = document.querySelector('.dashboard-page');
@@ -344,59 +273,6 @@
 
             el.textContent = '0';
             requestAnimationFrame(tick);
-        });
-    })();
-</script>
-
-<script>
-    (function () {
-        const canvas = document.getElementById('orderChart');
-        if (!canvas) return;
-
-        const pending = Number('{{ order_pending|default(0) }}') || 0;
-        const produksi = Number('{{ order_produksi|default(0) }}') || 0;
-        const selesai = Number('{{ order_selesai|default(0) }}') || 0;
-
-        const data = [pending, produksi, selesai];
-        const ctx = canvas.getContext('2d');
-
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Pending', 'Produksi', 'Selesai'],
-                datasets: [{
-                    data,
-                    backgroundColor: ['#fde68a', '#bfdbfe', '#bbf7d0'],
-                    borderColor: ['#f59e0b', '#2563eb', '#16a34a'],
-                    borderWidth: 1,
-                    hoverOffset: 6,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '62%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            boxWidth: 12,
-                            boxHeight: 12,
-                            color: '#111827',
-                            font: { size: 12 }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                const label = context.label || '';
-                                const value = context.parsed || 0;
-                                return label + ': ' + value;
-                            }
-                        }
-                    }
-                }
-            }
         });
     })();
 </script>

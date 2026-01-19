@@ -2,6 +2,7 @@ import csv
 from io import BytesIO, StringIO
 
 from flask import Blueprint, Response, render_template, send_file
+from flask_login import login_required
 from datetime import datetime
 
 from reportlab.lib import colors
@@ -16,12 +17,14 @@ bp = Blueprint('laporan', __name__, url_prefix='/laporan')
 
 
 @bp.route('/konsumen', methods=['GET'])
+@login_required
 def konsumen():
     konsumen = Konsumen.query.order_by(Konsumen.created_at.desc()).all()
     return render_template('laporan/konsumen.html', konsumen=konsumen)
 
 
 @bp.route('/konsumen/csv', methods=['GET'])
+@login_required
 def konsumen_csv():
     konsumen = Konsumen.query.order_by(Konsumen.created_at.desc()).all()
 
@@ -51,6 +54,7 @@ def konsumen_csv():
 
 
 @bp.route('/cetak', methods=['GET'])
+@login_required
 def cetak():
     konsumen_list = Konsumen.query.order_by(Konsumen.created_at.desc()).all()
     orders = Order.query.order_by(Order.tanggal_order.desc()).all()
@@ -94,6 +98,7 @@ def cetak():
 
 
 @bp.route('/order/csv', methods=['GET'])
+@login_required
 def order_csv():
     rows = (
         db.session.query(Order, Konsumen)
@@ -130,6 +135,7 @@ def order_csv():
 
 
 @bp.route('/konsumen/pdf', methods=['GET'])
+@login_required
 def konsumen_pdf():
     konsumen = Konsumen.query.order_by(Konsumen.created_at.desc()).all()
 
@@ -192,6 +198,7 @@ def konsumen_pdf():
 
 
 @bp.route('/order/pdf', methods=['GET'])
+@login_required
 def order_pdf():
     rows = (
         db.session.query(Order, Konsumen)
